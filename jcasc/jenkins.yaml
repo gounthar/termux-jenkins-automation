@@ -70,7 +70,7 @@ tool:
 
   jdk:
     installations:
-      - name: "OpenJDK-17"
+      - name: "OpenJDK-21"
         home: "/data/data/com.termux/files/usr/opt/openjdk"
 
   maven:
