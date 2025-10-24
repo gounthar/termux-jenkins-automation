@@ -12,13 +12,13 @@
   retries: "{{ config_wait_timeout // config_wait_delay }}"
   delay: "{{ config_wait_delay }}"
 
-- name: Deploy JCaS configuration
+- name: Deploy JCasC configuration
   ansible.builtin.template:
     src: jenkins.yaml.j2
     dest: "{{ jcasc_config_dest }}"
     mode: "0644"
     backup: true
-  notify: Reload JCaS
+  notify: Reload JCasC
 
 - name: Set CASC_JENKINS_CONFIG environment variable
   ansible.builtin.lineinfile:
@@ -71,7 +71,7 @@
   delay: "{{ config_wait_delay }}"
   when: plugin_install is changed
 
-- name: Reload JCaS configuration
+- name: Reload JCasC configuration
   ansible.builtin.uri:
     url: "http://localhost:{{ jenkins_port }}/configuration-as-code/reload"
     method: POST
@@ -97,7 +97,7 @@
   ansible.builtin.debug:
     msg:
       - "Jenkins Configuration as Code applied!"
-      - "JCaS config: {{ jcasc_config_dest }}"
+      - "JCasC config: {{ jcasc_config_dest }}"
       - "Plugins installed: {{ 'Yes' if plugin_install is changed else 'Skipped or already installed' }}"
       - "Configuration reloaded: {{ 'Yes' if jcasc_reload_result is succeeded else 'Failed' }}"
       - "Agent {{ agent_name }}: {{ 'Connected' if agent_status is succeeded and 'offline' not in (agent_status.content | from_json).offline | string | lower else 'Check status in Jenkins UI' }}"

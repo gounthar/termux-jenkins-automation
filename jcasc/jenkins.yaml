@@ -1,5 +1,5 @@
 ---
-# Jenkins Configuration as Code (JCaS)
+# Jenkins Configuration as Code (JCasC)
 # This configuration will be deployed to the Jenkins controller
 
 jenkins:

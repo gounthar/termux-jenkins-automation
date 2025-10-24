@@ -7,7 +7,7 @@ Transform your Android phone into a functional Jenkins CI/CD environment in minu
 This repository provides a turnkey Ansible-based automation that:
 - Installs Jenkins on Android devices running Termux
 - Configures a Jenkins agent for running builds
-- Uses Jenkins Configuration as Code (JCaS) for reproducible setup
+- Uses Jenkins Configuration as Code (JCasC) for reproducible setup
 - Demonstrates infrastructure-as-code principles on consumer hardware
 
 **From the CloudNord talk**: "Repurpose aging Android smartphones for DevOps automation"
@@ -84,7 +84,7 @@ ansible-playbook ansible/playbooks/99-complete-setup.yaml
 - Pre-configured admin user
 - SSH agent connection (localhost)
 - Sample jobs (Hello World, Python tests, Node.js builds)
-- Configuration as Code (JCaS)
+- Configuration as Code (JCasC)
 
 ## 🔧 Manual Step-by-Step Setup
 
@@ -103,7 +103,7 @@ ansible-playbook ansible/playbooks/02-install-jenkins.yaml
 # Phase 4: Configure Jenkins agent
 ansible-playbook ansible/playbooks/03-configure-agent.yaml
 
-# Phase 5: Apply JCaS configuration
+# Phase 5: Apply JCasC configuration
 ansible-playbook ansible/playbooks/04-configure-jcasc.yaml
 ```
 
@@ -135,7 +135,7 @@ ansible-playbook ansible/playbooks/03-configure-agent.yaml --limit phone2,phone3
 
 This repository itself uses:
 - Ansible for automation
-- Jenkins Configuration as Code (JCaS)
+- Jenkins Configuration as Code (JCasC)
 - GitHub Actions for validation
 - Conventional Commits
 
@@ -158,7 +158,7 @@ This project welcomes contributions! Areas where help is needed:
 - Additional sample jobs
 - Documentation improvements
 - Ansible role enhancements
-- JCaS configurations
+- JCasC configurations
 
 ## 📜 License
 

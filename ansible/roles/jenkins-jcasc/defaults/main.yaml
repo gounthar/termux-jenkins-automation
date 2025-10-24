@@ -1,7 +1,7 @@
 ---
 # Default variables for jenkins-jcasc role
 
-# JCaS configuration
+# JCasC configuration
 jcasc_config_source: "{{ playbook_dir }}/../jcasc/jenkins.yaml"
 jcasc_config_dest: "{{ jenkins_home }}/jenkins.yaml"
 jcasc_reload_token: "{{ lookup('env', 'JCASC_RELOAD_TOKEN') | default('changeme-' + ansible_date_time.epoch, true) }}"

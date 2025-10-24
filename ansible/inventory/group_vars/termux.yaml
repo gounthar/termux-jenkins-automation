@@ -32,6 +32,6 @@ git_version: latest
 jenkins_memory_mb: 512  # Minimal memory for Jenkins
 max_executors: 2  # Max concurrent builds on agent
 
-# JCaS configuration
+# JCasC configuration
 jcasc_config_path: "{{ jenkins_home }}/jenkins.yaml"
 jcasc_reload_token: "{{ lookup('env', 'JCASC_RELOAD_TOKEN') | default('changeme', true) }}"
