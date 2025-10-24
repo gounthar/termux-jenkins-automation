@@ -3,7 +3,7 @@
 # Installs and configures Jenkins on Termux
 
 - name: Install OpenJDK
-  ansible.builtin.command: "{{ termux_bin }}/pkg install -y openjdk-17"
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ openjdk_package_name }}"
   register: java_install_result
   changed_when: "'Setting up' in java_install_result.stdout"
 

@@ -35,3 +35,4 @@ verify_config: true
 # Wait for configuration to apply
 config_wait_timeout: 60
 config_wait_delay: 5
+jdk_tool_name: "OpenJDK-21"
