@@ -1,0 +1,37 @@
+---
+# Termux-specific variables
+# These apply to all hosts in the termux_controller and termux_agents groups
+
+# Termux paths
+termux_prefix: /data/data/com.termux/files
+termux_home: /data/data/com.termux/files/home
+termux_usr: /data/data/com.termux/files/usr
+
+# Jenkins configuration
+jenkins_version: 2.479.1  # LTS version
+jenkins_port: 8080
+jenkins_home: "{{ termux_home }}/.jenkins"
+jenkins_admin_user: admin
+jenkins_admin_password: "{{ lookup('env', 'JENKINS_ADMIN_PASSWORD') | default('admin', true) }}"
+
+# Agent configuration
+jenkins_agent_home: "{{ termux_home }}/jenkins-agent"
+jenkins_agent_user: jenkins-agent
+jenkins_agent_port: 8022
+
+# SSH configuration
+ssh_key_type: ed25519
+ssh_key_path: "{{ termux_home }}/.ssh"
+
+# Build tools versions
+python_version: latest
+nodejs_version: latest
+git_version: latest
+
+# Resource limits
+jenkins_memory_mb: 512  # Minimal memory for Jenkins
+max_executors: 2  # Max concurrent builds on agent
+
+# JCaS configuration
+jcasc_config_path: "{{ jenkins_home }}/jenkins.yaml"
+jcasc_reload_token: "{{ lookup('env', 'JCASC_RELOAD_TOKEN') | default('changeme', true) }}"

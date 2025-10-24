@@ -1,0 +1,71 @@
+# Ansible
+*.retry
+.ansible/
+ansible.log
+
+# Secrets and credentials
+secrets/
+*.pem
+*.key
+*_rsa
+*_rsa.pub
+*.secret
+vault-password.txt
+
+# Environment files
+.env
+.env.local
+
+# Jenkins
+jenkins-home/
+*.war
+*.hpi
+plugins/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Context and progress (local only)
+CONTEXT.md
+PROGRESS.md
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/

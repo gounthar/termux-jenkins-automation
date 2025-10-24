@@ -1,0 +1,102 @@
+---
+# Jenkins Configuration as Code (JCaS)
+# This configuration will be deployed to the Jenkins controller
+
+jenkins:
+  systemMessage: "Jenkins on Android - CloudNord Demo\nManaged by Configuration as Code"
+  numExecutors: 0  # Controller doesn't run builds directly
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD:-admin}"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+
+  nodes:
+    - permanent:
+        name: "termux-agent-1"
+        labelString: "android termux mobile"
+        launcher:
+          ssh:
+            credentialsId: "termux-ssh-key"
+            host: "localhost"  # Agent on same device
+            port: 8022
+            sshHostKeyVerificationStrategy:
+              manuallyTrustedKeyVerificationStrategy:
+                requireInitialManualTrust: false
+        nodeDescription: "Termux SSH Agent on Android"
+        remoteFS: "/data/data/com.termux/files/home/jenkins-agent"
+        retentionStrategy: "always"
+        numExecutors: 2
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - basicSSHUserPrivateKey:
+              id: "termux-ssh-key"
+              description: "SSH key for Termux agent"
+              privateKeySource:
+                directEntry:
+                  privateKey: ${readFile:/data/data/com.termux/files/home/.jenkins/ssh/id_ed25519}
+              scope: SYSTEM
+              username: "jenkins-agent"
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"
+
+  globalLibraries:
+    libraries:
+      - name: "termux-helpers"
+        defaultVersion: "main"
+        implicit: false
+        allowVersionOverride: true
+
+tool:
+  git:
+    installations:
+      - name: "Default"
+        home: "/data/data/com.termux/files/usr/bin/git"
+
+  jdk:
+    installations:
+      - name: "OpenJDK-17"
+        home: "/data/data/com.termux/files/usr/opt/openjdk"
+
+  maven:
+    installations:
+      - name: "Maven"
+        home: "/data/data/com.termux/files/usr/share/maven"
+
+jobs:
+  - script: |
+      pipelineJob('hello-world') {
+        definition {
+          cps {
+            script("""
+              pipeline {
+                agent { label 'termux' }
+                stages {
+                  stage('Hello') {
+                    steps {
+                      sh 'echo "Hello from Android!"'
+                      sh 'uname -a'
+                      sh 'java -version'
+                    }
+                  }
+                }
+              }
+            """)
+          }
+        }
+      }

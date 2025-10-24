@@ -1,0 +1,35 @@
+# Essential Jenkins plugins for Termux setup
+# Format: plugin-id:version
+
+# Configuration as Code
+configuration-as-code:1850.va_a_8c31d3158b_
+configuration-as-code-groovy:1.1
+
+# SSH and credentials
+ssh-slaves:2.973.v0fa_8c0dea_f9f
+ssh-credentials:343.v884f71d78167
+credentials:1371.vfee6b_095f0a_3
+credentials-binding:681.vf91669a_32e45
+
+# Git
+git:5.5.2
+git-client:5.0.0
+git-server:99.va_0826a_b_cdfa_d
+
+# Pipeline
+workflow-aggregator:600.vb_57cdd26fdd7
+workflow-job:1436.vfa_244484591f
+workflow-cps:3983.v4b_5c4d169b_1c
+pipeline-stage-view:2.34
+
+# UI and visualization
+dashboard-view:2.518.v3b_8a_2a_c61972
+build-monitor-plugin:1.14+build.202401200143
+
+# Utilities
+job-dsl:1.87
+matrix-project:832.va_66e270d2946
+junit:1282.v6eaeb_422719b_
+
+# Security
+matrix-auth:3.2.2

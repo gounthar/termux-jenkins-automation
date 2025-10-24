@@ -1,0 +1,33 @@
+---
+# Ansible inventory for Termux Jenkins setup
+#
+# Usage:
+#   ansible-playbook -i ansible/inventory/hosts.yaml playbook.yaml
+
+all:
+  children:
+    termux_controller:
+      hosts:
+        phone1:
+          ansible_host: 192.168.1.50  # Update with your phone's IP
+          ansible_port: 8022
+          ansible_user: termux
+          ansible_connection: ssh
+          ansible_python_interpreter: /data/data/com.termux/files/usr/bin/python
+
+    termux_agents:
+      hosts:
+        phone1:  # First phone is both controller and agent
+          ansible_host: 192.168.1.50
+          ansible_port: 8022
+          ansible_user: termux
+
+      # Add more agents here:
+      # phone2:
+      #   ansible_host: 192.168.1.51
+      #   ansible_port: 8022
+      #   ansible_user: termux
+      # phone3:
+      #   ansible_host: 192.168.1.52
+      #   ansible_port: 8022
+      #   ansible_user: termux
