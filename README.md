@@ -74,7 +74,7 @@ ansible-playbook ansible/playbooks/99-complete-setup.yaml
 ## 🎭 What Gets Installed
 
 **On Termux:**
-- OpenJDK 21 (Jenkins requirement)
+- OpenJDK 17 (Jenkins requirement)
 - Jenkins LTS (latest)
 - SSH daemon (for agent connection)
 - Build tools: Git, Python, Node.js, Make, Clang
