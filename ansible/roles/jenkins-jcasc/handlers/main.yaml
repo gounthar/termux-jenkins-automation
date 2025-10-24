@@ -1,0 +1,13 @@
+---
+# Handlers for jenkins-jcasc role
+
+- name: Reload JCaS
+  ansible.builtin.uri:
+    url: "http://localhost:{{ jenkins_port }}/configuration-as-code/reload"
+    method: POST
+    user: "{{ jenkins_admin_user }}"
+    password: "{{ jenkins_admin_password }}"
+    force_basic_auth: true
+    status_code: [200, 201]
+  listen: "Reload JCaS"
+  ignore_errors: true

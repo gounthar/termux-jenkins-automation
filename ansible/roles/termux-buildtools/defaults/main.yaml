@@ -1,0 +1,60 @@
+---
+# Default variables for termux-buildtools role
+
+# Build essentials
+build_packages:
+  - clang
+  - make
+  - cmake
+  - pkg-config
+  - binutils
+  - autoconf
+  - automake
+  - libtool
+
+# Language runtimes
+language_runtimes:
+  - python
+  - nodejs
+  - ruby
+  - golang
+
+# Version control
+vcs_packages:
+  - git
+  - git-lfs
+
+# Additional development tools
+dev_tools:
+  - jq
+  - yq
+  - zip
+  - unzip
+  - rsync
+
+# Python packages
+install_python_packages: true
+python_pip_packages:
+  - pip
+  - setuptools
+  - wheel
+  - virtualenv
+  - pytest
+
+# Node.js packages
+install_node_packages: true
+node_global_packages:
+  - npm
+  - yarn
+
+# Environment variables to set
+env_vars:
+  - { name: "EDITOR", value: "nano" }
+  - { name: "VISUAL", value: "nano" }
+
+# Profile configuration
+configure_profile: true
+profile_path: "{{ termux_home }}/.profile"
+
+# Verify installations
+verify_installations: true

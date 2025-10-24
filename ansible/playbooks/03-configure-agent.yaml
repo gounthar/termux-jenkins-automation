@@ -1,0 +1,38 @@
+---
+# Playbook: 03-configure-agent.yaml
+# Purpose: Install build tools and configure Jenkins agent
+# Usage: ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/03-configure-agent.yaml
+
+- name: Configure Jenkins agent with build tools
+  hosts: termux_agents
+  gather_facts: true
+  become: false
+
+  pre_tasks:
+    - name: Display configuration info
+      ansible.builtin.debug:
+        msg:
+          - "Configuring Jenkins agent on: {{ ansible_host }}"
+          - "Installing build tools (Python, Node.js, Git, etc.)"
+          - "This may take several minutes..."
+
+  roles:
+    - termux-buildtools
+    - jenkins-agent
+
+  post_tasks:
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg:
+          - "✅ Jenkins agent configuration complete!"
+          - "Agent name: {{ jenkins_agent_name }}"
+          - "Agent home: {{ jenkins_agent_home }}"
+          - "SSH key created: {{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }}"
+          - ""
+          - "Build tools installed:"
+          - "  - Python (with pip)"
+          - "  - Node.js (with npm)"
+          - "  - Git"
+          - "  - Build essentials (clang, make, cmake)"
+          - ""
+          - "Next step: ansible-playbook ansible/playbooks/04-configure-jcasc.yaml"

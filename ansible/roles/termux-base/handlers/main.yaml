@@ -1,0 +1,20 @@
+---
+# Handlers for termux-base role
+
+- name: Restart sshd
+  ansible.builtin.command: sv restart sshd
+  listen: "Restart sshd"
+  failed_when: false
+  changed_when: true
+
+- name: Start sshd
+  ansible.builtin.command: sshd
+  listen: "Start sshd"
+  failed_when: false
+  changed_when: true
+
+- name: Stop sshd
+  ansible.builtin.command: pkill sshd
+  listen: "Stop sshd"
+  failed_when: false
+  changed_when: true

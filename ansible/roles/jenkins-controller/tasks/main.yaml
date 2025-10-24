@@ -1,0 +1,109 @@
+---
+# Main tasks for jenkins-controller role
+# Installs and configures Jenkins on Termux
+
+- name: Install OpenJDK
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y openjdk-17"
+  register: java_install_result
+  changed_when: "'Setting up' in java_install_result.stdout"
+
+- name: Verify Java installation
+  ansible.builtin.command: "{{ java_bin }} -version"
+  register: java_version_check
+  changed_when: false
+
+- name: Display Java version
+  ansible.builtin.debug:
+    msg: "Java installed: {{ java_version_check.stderr.split('\n')[0] }}"
+
+- name: Create Jenkins home directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ jenkins_home }}"
+    - "{{ jenkins_log_dir }}"
+    - "{{ jenkins_plugins_dir }}"
+    - "{{ jenkins_jobs_dir }}"
+    - "{{ jenkins_home }}/init.groovy.d"
+
+- name: Check if Jenkins WAR exists
+  ansible.builtin.stat:
+    path: "{{ jenkins_war_path }}"
+  register: jenkins_war_stat
+
+- name: Download Jenkins WAR file
+  ansible.builtin.get_url:
+    url: "{{ jenkins_war_url }}"
+    dest: "{{ jenkins_war_path }}"
+    mode: "0644"
+  when: not jenkins_war_stat.stat.exists
+  register: jenkins_download
+
+- name: Skip setup wizard by creating init script
+  ansible.builtin.copy:
+    dest: "{{ jenkins_home }}/init.groovy.d/skip-wizard.groovy"
+    content: |
+      import jenkins.model.Jenkins
+      import jenkins.install.InstallState
+
+      def instance = Jenkins.getInstance()
+      if (!instance.installState.isSetupComplete()) {
+        instance.setInstallState(InstallState.INITIAL_SETUP_COMPLETED)
+      }
+    mode: "0644"
+  when: skip_setup_wizard | bool
+
+- name: Create Jenkins startup script
+  ansible.builtin.template:
+    src: start-jenkins.sh.j2
+    dest: "{{ jenkins_service_script }}"
+    mode: "0755"
+
+- name: Create Jenkins service script for termux-services
+  ansible.builtin.template:
+    src: jenkins-service.sh.j2
+    dest: "{{ termux_prefix }}/var/service/{{ jenkins_service_name }}/run"
+    mode: "0755"
+  when: jenkins_service_enabled | bool
+
+- name: Enable Jenkins service
+  ansible.builtin.command: sv-enable {{ jenkins_service_name }}
+  args:
+    creates: "{{ termux_prefix }}/var/service/{{ jenkins_service_name }}"
+  when: jenkins_service_enabled | bool
+
+- name: Start Jenkins
+  ansible.builtin.command: "{{ jenkins_service_script }}"
+  async: 30
+  poll: 0
+  register: jenkins_start
+  changed_when: true
+
+- name: Wait for Jenkins to start
+  ansible.builtin.uri:
+    url: "http://localhost:{{ jenkins_port }}"
+    status_code: [200, 403]
+    timeout: 5
+  register: jenkins_check
+  until: jenkins_check.status in [200, 403]
+  retries: "{{ jenkins_wait_timeout // jenkins_wait_delay }}"
+  delay: "{{ jenkins_wait_delay }}"
+  ignore_errors: true
+
+- name: Get initial admin password
+  ansible.builtin.slurp:
+    src: "{{ jenkins_home }}/secrets/initialAdminPassword"
+  register: initial_password
+  ignore_errors: true
+
+- name: Display Jenkins access information
+  ansible.builtin.debug:
+    msg:
+      - "Jenkins controller installation complete!"
+      - "Jenkins URL: http://{{ ansible_host }}:{{ jenkins_port }}"
+      - "Initial admin password: {{ initial_password.content | b64decode | trim if initial_password is succeeded else 'Check ' + jenkins_home + '/secrets/initialAdminPassword' }}"
+      - "Java version: {{ java_version_check.stderr.split('\n')[0] }}"
+      - "Jenkins WAR: {{ jenkins_war_path }}"
+      - "Jenkins home: {{ jenkins_home }}"

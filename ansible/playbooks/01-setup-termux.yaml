@@ -1,0 +1,36 @@
+---
+# Playbook: 01-setup-termux.yaml
+# Purpose: Set up basic Termux environment with SSH and essential packages
+# Usage: ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/01-setup-termux.yaml
+
+- name: Set up Termux base environment
+  hosts: termux_controller
+  gather_facts: true
+  become: false
+
+  tasks:
+    - name: Display target information
+      ansible.builtin.debug:
+        msg:
+          - "Setting up Termux on: {{ ansible_host }}"
+          - "User: {{ ansible_user }}"
+          - "Port: {{ ansible_port }}"
+
+    - name: Apply termux-base role
+      ansible.builtin.include_role:
+        name: termux-base
+
+    - name: Verify SSH is running
+      ansible.builtin.command: pgrep sshd
+      register: sshd_check
+      changed_when: false
+      failed_when: sshd_check.rc != 0
+
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg:
+          - "✅ Termux base setup complete!"
+          - "SSH daemon is running on port {{ ssh_port }}"
+          - "You can now proceed to install build tools and Jenkins"
+          - ""
+          - "Next step: ansible-playbook ansible/playbooks/02-install-jenkins.yaml"

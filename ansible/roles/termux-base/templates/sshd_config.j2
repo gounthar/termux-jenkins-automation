@@ -1,0 +1,35 @@
+# SSH daemon configuration for Termux
+# Managed by Ansible - do not edit manually
+
+# Port to listen on
+Port {{ ssh_port }}
+
+# Authentication
+PermitRootLogin {{ ssh_permit_root_login }}
+PubkeyAuthentication {{ ssh_pubkey_authentication }}
+PasswordAuthentication {{ ssh_password_authentication }}
+
+# Allow specific users (if set)
+{% if ssh_allow_users %}
+AllowUsers {{ ssh_allow_users }}
+{% endif %}
+
+# Security settings
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+UsePAM no
+
+# Performance and connection settings
+X11Forwarding no
+PrintMotd no
+AcceptEnv LANG LC_*
+
+# Subsystem for SFTP
+Subsystem sftp {{ termux_usr }}/libexec/sftp-server
+
+# Log level
+LogLevel INFO
+
+# Keep alive
+ClientAliveInterval 60
+ClientAliveCountMax 3

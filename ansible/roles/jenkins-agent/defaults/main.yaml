@@ -1,0 +1,38 @@
+---
+# Default variables for jenkins-agent role
+
+# Agent configuration
+jenkins_agent_name: "termux-agent-1"
+jenkins_agent_home: "{{ termux_home }}/jenkins-agent"
+jenkins_agent_user: "{{ ansible_user | default('termux') }}"
+jenkins_agent_labels: "android termux mobile"
+jenkins_agent_executors: 2
+
+# SSH configuration for agent
+jenkins_agent_ssh_key_path: "{{ jenkins_home }}/ssh"
+jenkins_agent_ssh_key_type: "ed25519"
+jenkins_agent_ssh_key_name: "id_ed25519"
+
+# Resource limits
+jenkins_agent_memory_limit: "1024m"  # Max memory for builds
+
+# Working directory structure
+jenkins_agent_workspace: "{{ jenkins_agent_home }}/workspace"
+jenkins_agent_tools: "{{ jenkins_agent_home }}/tools"
+jenkins_agent_cache: "{{ jenkins_agent_home }}/cache"
+
+# Directories to create
+jenkins_agent_directories:
+  - "{{ jenkins_agent_home }}"
+  - "{{ jenkins_agent_workspace }}"
+  - "{{ jenkins_agent_tools }}"
+  - "{{ jenkins_agent_cache }}"
+  - "{{ jenkins_agent_ssh_key_path }}"
+
+# Environment variables for builds
+jenkins_agent_env_vars:
+  - { name: "ANDROID_BUILD", value: "true" }
+  - { name: "TERMUX_BUILD", value: "true" }
+
+# Verify agent setup
+verify_agent_setup: true

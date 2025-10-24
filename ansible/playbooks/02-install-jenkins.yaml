@@ -1,0 +1,31 @@
+---
+# Playbook: 02-install-jenkins.yaml
+# Purpose: Install Jenkins controller on Termux
+# Usage: ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/02-install-jenkins.yaml
+
+- name: Install Jenkins controller
+  hosts: termux_controller
+  gather_facts: true
+  become: false
+
+  pre_tasks:
+    - name: Display installation info
+      ansible.builtin.debug:
+        msg:
+          - "Installing Jenkins LTS on: {{ ansible_host }}"
+          - "Version: {{ jenkins_version }}"
+          - "Port: {{ jenkins_port }}"
+          - "This may take several minutes..."
+
+  roles:
+    - jenkins-controller
+
+  post_tasks:
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg:
+          - "✅ Jenkins controller installation complete!"
+          - "Access Jenkins at: http://{{ ansible_host }}:{{ jenkins_port }}"
+          - "Initial admin password location: {{ jenkins_home }}/secrets/initialAdminPassword"
+          - ""
+          - "Next step: ansible-playbook ansible/playbooks/03-configure-agent.yaml"

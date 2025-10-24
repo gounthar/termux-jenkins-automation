@@ -1,0 +1,38 @@
+---
+# Playbook: 04-configure-jcasc.yaml
+# Purpose: Apply Jenkins Configuration as Code
+# Usage: ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/04-configure-jcasc.yaml
+
+- name: Apply Jenkins Configuration as Code
+  hosts: termux_controller
+  gather_facts: true
+  become: false
+
+  pre_tasks:
+    - name: Display configuration info
+      ansible.builtin.debug:
+        msg:
+          - "Applying Jenkins Configuration as Code on: {{ ansible_host }}"
+          - "This will:"
+          - "  - Configure admin user"
+          - "  - Register SSH agent"
+          - "  - Install required plugins"
+          - "  - Create sample jobs"
+          - ""
+          - "This may take several minutes..."
+
+  roles:
+    - jenkins-jcasc
+
+  post_tasks:
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg:
+          - "✅ Jenkins Configuration as Code applied!"
+          - ""
+          - "Jenkins is now fully configured!"
+          - "Access Jenkins at: http://{{ ansible_host }}:{{ jenkins_port }}"
+          - "Login: {{ jenkins_admin_user }} / {{ jenkins_admin_password }}"
+          - ""
+          - "Sample job created: 'hello-world'"
+          - "Try running it to verify the setup!"

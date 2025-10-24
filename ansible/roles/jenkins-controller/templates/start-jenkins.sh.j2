@@ -1,0 +1,53 @@
+#!/data/data/com.termux/files/usr/bin/bash
+#
+# Jenkins startup script for Termux
+# Managed by Ansible - do not edit manually
+
+set -e
+
+# Configuration
+JENKINS_HOME="{{ jenkins_home }}"
+JENKINS_WAR="{{ jenkins_war_path }}"
+JENKINS_PORT="{{ jenkins_port }}"
+JENKINS_JAVA_OPTIONS="{{ jenkins_java_options }}"
+JENKINS_ARGS="{{ jenkins_args }}"
+JAVA_BIN="{{ java_bin }}"
+LOG_FILE="{{ jenkins_log_dir }}/jenkins.log"
+
+# Ensure Jenkins home exists
+mkdir -p "$JENKINS_HOME"
+mkdir -p "{{ jenkins_log_dir }}"
+
+# Set environment
+export JENKINS_HOME
+
+# Check if Jenkins is already running
+if pgrep -f "jenkins.war" > /dev/null; then
+    echo "Jenkins is already running"
+    exit 0
+fi
+
+# Start Jenkins
+echo "Starting Jenkins..."
+echo "Jenkins Home: $JENKINS_HOME"
+echo "Jenkins Port: $JENKINS_PORT"
+echo "Log file: $LOG_FILE"
+
+nohup "$JAVA_BIN" $JENKINS_JAVA_OPTIONS \
+    -jar "$JENKINS_WAR" \
+    $JENKINS_ARGS \
+    >> "$LOG_FILE" 2>&1 &
+
+JENKINS_PID=$!
+echo "Jenkins started with PID: $JENKINS_PID"
+echo $JENKINS_PID > "{{ jenkins_home }}/jenkins.pid"
+
+# Wait a few seconds and check if it's still running
+sleep 5
+if ps -p $JENKINS_PID > /dev/null; then
+    echo "Jenkins is running"
+    echo "Access Jenkins at: http://localhost:$JENKINS_PORT"
+else
+    echo "Jenkins failed to start. Check logs at: $LOG_FILE"
+    exit 1
+fi

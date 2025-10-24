@@ -1,0 +1,44 @@
+---
+# Default variables for jenkins-controller role
+
+# Jenkins version
+jenkins_version: "2.479.1"  # LTS version
+jenkins_war_url: "https://get.jenkins.io/war-stable/{{ jenkins_version }}/jenkins.war"
+jenkins_war_path: "{{ termux_home }}/jenkins.war"
+
+# Jenkins directories
+jenkins_home: "{{ termux_home }}/.jenkins"
+jenkins_log_dir: "{{ jenkins_home }}/logs"
+jenkins_plugins_dir: "{{ jenkins_home }}/plugins"
+jenkins_jobs_dir: "{{ jenkins_home }}/jobs"
+
+# Jenkins configuration
+jenkins_port: 8080
+jenkins_http_listen_address: "0.0.0.0"
+jenkins_java_options: "-Xmx512m -Xms256m"
+jenkins_args: "--httpPort={{ jenkins_port }} --httpListenAddress={{ jenkins_http_listen_address }}"
+
+# Admin configuration
+jenkins_admin_user: "admin"
+jenkins_admin_password: "admin"  # Should be changed via environment variable
+jenkins_admin_email: "admin@localhost"
+
+# Service configuration
+jenkins_service_enabled: true
+jenkins_service_name: "jenkins"
+jenkins_service_script: "{{ termux_home }}/bin/start-jenkins.sh"
+
+# Plugin management
+install_plugins: true
+plugins_file: "{{ playbook_dir }}/../jcasc/plugins.txt"
+
+# Skip setup wizard
+skip_setup_wizard: true
+
+# Wait for Jenkins to start
+jenkins_wait_timeout: 300  # 5 minutes
+jenkins_wait_delay: 10  # Check every 10 seconds
+
+# Java configuration
+java_home: "{{ termux_usr }}/opt/openjdk"
+java_bin: "{{ java_home }}/bin/java"

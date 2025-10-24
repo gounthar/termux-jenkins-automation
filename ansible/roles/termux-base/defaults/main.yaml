@@ -1,0 +1,60 @@
+---
+# Default variables for termux-base role
+
+# Termux paths
+termux_prefix: /data/data/com.termux/files
+termux_home: /data/data/com.termux/files/home
+termux_usr: /data/data/com.termux/files/usr
+termux_bin: /data/data/com.termux/files/usr/bin
+
+# Core packages to install
+termux_base_packages:
+  - openssh
+  - git
+  - curl
+  - wget
+  - tar
+  - gzip
+  - unzip
+  - nano
+  - vim
+  - htop
+  - ncurses-utils
+  - termux-services
+  - termux-tools
+  - termux-api
+
+# SSH configuration
+ssh_port: 8022
+ssh_permit_root_login: "no"
+ssh_password_authentication: "yes"  # Initially yes, will be changed to no after keys are set up
+ssh_pubkey_authentication: "yes"
+ssh_allow_users: ""  # Empty means all users allowed
+
+# SSH key configuration
+setup_ssh_keys: true
+ssh_key_type: ed25519
+ssh_key_comment: "ansible-managed-{{ ansible_hostname }}"
+
+# Storage setup
+setup_storage: true
+
+# Service management
+enable_sshd: true
+start_sshd: true
+
+# Update packages on first run
+update_packages: true
+upgrade_packages: true
+
+# Directories to create
+termux_directories:
+  - "{{ termux_home }}/.ssh"
+  - "{{ termux_home }}/bin"
+  - "{{ termux_home }}/workspace"
+  - "{{ termux_home }}/logs"
+
+# File permissions
+ssh_directory_mode: "0700"
+ssh_key_mode: "0600"
+ssh_authorized_keys_mode: "0600"

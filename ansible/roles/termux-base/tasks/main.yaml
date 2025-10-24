@@ -1,0 +1,96 @@
+---
+# Main tasks for termux-base role
+# Sets up basic Termux environment with SSH and essential packages
+
+- name: Update package lists
+  ansible.builtin.command: "{{ termux_bin }}/pkg update -y"
+  changed_when: false
+  when: update_packages | bool
+
+- name: Upgrade all packages
+  ansible.builtin.command: "{{ termux_bin }}/pkg upgrade -y"
+  register: pkg_upgrade_result
+  changed_when: "'Upgrading' in pkg_upgrade_result.stdout"
+  when: upgrade_packages | bool
+
+- name: Install core Termux packages
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
+  loop: "{{ termux_base_packages }}"
+  register: pkg_install_result
+  changed_when: "'Setting up' in pkg_install_result.stdout"
+
+- name: Create necessary directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ termux_directories }}"
+
+- name: Set up Termux storage access
+  ansible.builtin.command: termux-setup-storage
+  args:
+    creates: "{{ termux_home }}/storage"
+  when: setup_storage | bool
+
+- name: Ensure .ssh directory exists with correct permissions
+  ansible.builtin.file:
+    path: "{{ termux_home }}/.ssh"
+    state: directory
+    mode: "{{ ssh_directory_mode }}"
+
+- name: Generate SSH host keys (if not present)
+  ansible.builtin.command: ssh-keygen -A
+  args:
+    creates: "{{ termux_prefix }}/etc/ssh/ssh_host_ed25519_key"
+  notify: Restart sshd
+
+- name: Deploy SSH daemon configuration
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: "{{ termux_prefix }}/etc/ssh/sshd_config"
+    mode: "0644"
+    backup: true
+  notify: Restart sshd
+
+- name: Set up Ansible SSH key for passwordless access
+  ansible.builtin.authorized_key:
+    user: "{{ ansible_user | default('termux') }}"
+    key: "{{ lookup('file', lookup('env', 'HOME') + '/.ssh/id_rsa.pub') }}"
+    state: present
+    path: "{{ termux_home }}/.ssh/authorized_keys"
+    manage_dir: false
+  when: setup_ssh_keys | bool
+  ignore_errors: true  # May fail if key doesn't exist yet
+
+- name: Ensure authorized_keys has correct permissions
+  ansible.builtin.file:
+    path: "{{ termux_home }}/.ssh/authorized_keys"
+    mode: "{{ ssh_authorized_keys_mode }}"
+  when: setup_ssh_keys | bool
+
+- name: Enable SSH daemon service
+  ansible.builtin.command: sv-enable sshd
+  args:
+    creates: "{{ termux_prefix }}/var/service/sshd"
+  when: enable_sshd | bool
+  notify: Start sshd
+
+- name: Check if SSH daemon is running
+  ansible.builtin.command: pgrep sshd
+  register: sshd_status
+  changed_when: false
+  failed_when: false
+
+- name: Start SSH daemon if not running
+  ansible.builtin.command: sshd
+  when:
+    - start_sshd | bool
+    - sshd_status.rc != 0
+  changed_when: true
+
+- name: Display SSH connection information
+  ansible.builtin.debug:
+    msg:
+      - "Termux base setup complete!"
+      - "SSH is running on port {{ ssh_port }}"
+      - "Connect with: ssh -p {{ ssh_port }} {{ ansible_user }}@{{ ansible_host }}"

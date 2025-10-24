@@ -1,0 +1,95 @@
+---
+# Main tasks for termux-buildtools role
+# Installs development tools and language runtimes
+
+- name: Install build essential packages
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
+  loop: "{{ build_packages }}"
+  register: build_pkg_result
+  changed_when: "'Setting up' in build_pkg_result.stdout"
+
+- name: Install language runtimes
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
+  loop: "{{ language_runtimes }}"
+  register: lang_result
+  changed_when: "'Setting up' in lang_result.stdout"
+
+- name: Install version control systems
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
+  loop: "{{ vcs_packages }}"
+  register: vcs_result
+  changed_when: "'Setting up' in vcs_result.stdout"
+
+- name: Install additional development tools
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
+  loop: "{{ dev_tools }}"
+  register: dev_tools_result
+  changed_when: "'Setting up' in dev_tools_result.stdout"
+
+- name: Upgrade pip to latest version
+  ansible.builtin.command: "{{ termux_bin }}/pip install --upgrade pip"
+  when: install_python_packages | bool
+  changed_when: true
+
+- name: Install Python packages
+  ansible.builtin.command: "{{ termux_bin }}/pip install {{ item }}"
+  loop: "{{ python_pip_packages }}"
+  when: install_python_packages | bool
+  register: pip_result
+  changed_when: "'Successfully installed' in pip_result.stdout"
+
+- name: Update npm to latest version
+  ansible.builtin.command: "{{ termux_bin }}/npm install -g npm@latest"
+  when: install_node_packages | bool
+  changed_when: true
+
+- name: Install Node.js global packages
+  ansible.builtin.command: "{{ termux_bin }}/npm install -g {{ item }}"
+  loop: "{{ node_global_packages }}"
+  when: install_node_packages | bool
+  register: npm_result
+  changed_when: "'added' in npm_result.stdout"
+
+- name: Configure environment variables in .profile
+  ansible.builtin.lineinfile:
+    path: "{{ profile_path }}"
+    line: "export {{ item.name }}={{ item.value }}"
+    create: true
+    mode: "0644"
+  loop: "{{ env_vars }}"
+  when: configure_profile | bool
+
+- name: Add custom PATH entries to .profile
+  ansible.builtin.lineinfile:
+    path: "{{ profile_path }}"
+    line: 'export PATH="{{ termux_home }}/bin:$PATH"'
+    create: true
+    mode: "0644"
+  when: configure_profile | bool
+
+- name: Verify Python installation
+  ansible.builtin.command: "{{ termux_bin }}/python --version"
+  register: python_version
+  changed_when: false
+  when: verify_installations | bool
+
+- name: Verify Node.js installation
+  ansible.builtin.command: "{{ termux_bin }}/node --version"
+  register: node_version
+  changed_when: false
+  when: verify_installations | bool
+
+- name: Verify Git installation
+  ansible.builtin.command: "{{ termux_bin }}/git --version"
+  register: git_version
+  changed_when: false
+  when: verify_installations | bool
+
+- name: Display installed tool versions
+  ansible.builtin.debug:
+    msg:
+      - "Build tools installation complete!"
+      - "Python: {{ python_version.stdout | default('N/A') }}"
+      - "Node.js: {{ node_version.stdout | default('N/A') }}"
+      - "Git: {{ git_version.stdout | default('N/A') }}"
+  when: verify_installations | bool

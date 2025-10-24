@@ -1,0 +1,88 @@
+---
+# Main tasks for jenkins-agent role
+# Configures Termux as a Jenkins SSH agent
+
+- name: Create Jenkins agent directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ jenkins_agent_directories }}"
+
+- name: Generate SSH key pair for Jenkins agent
+  ansible.builtin.command: >
+    ssh-keygen -t {{ jenkins_agent_ssh_key_type }}
+    -f {{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }}
+    -N ""
+    -C "jenkins-agent@{{ ansible_hostname }}"
+  args:
+    creates: "{{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }}"
+
+- name: Set correct permissions on private key
+  ansible.builtin.file:
+    path: "{{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }}"
+    mode: "0600"
+
+- name: Set correct permissions on public key
+  ansible.builtin.file:
+    path: "{{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }}.pub"
+    mode: "0644"
+
+- name: Add agent public key to authorized_keys for localhost SSH
+  ansible.builtin.authorized_key:
+    user: "{{ jenkins_agent_user }}"
+    key: "{{ lookup('file', jenkins_agent_ssh_key_path + '/' + jenkins_agent_ssh_key_name + '.pub') }}"
+    state: present
+
+- name: Configure agent environment variables
+  ansible.builtin.lineinfile:
+    path: "{{ termux_home }}/.profile"
+    line: "export {{ item.name }}={{ item.value }}"
+    create: true
+    mode: "0644"
+  loop: "{{ jenkins_agent_env_vars }}"
+
+- name: Create agent info file
+  ansible.builtin.copy:
+    dest: "{{ jenkins_agent_home }}/agent-info.txt"
+    content: |
+      Jenkins Agent Configuration
+      ==========================
+      Agent Name: {{ jenkins_agent_name }}
+      Agent Home: {{ jenkins_agent_home }}
+      Workspace: {{ jenkins_agent_workspace }}
+      Labels: {{ jenkins_agent_labels }}
+      Executors: {{ jenkins_agent_executors }}
+      SSH Key: {{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }}
+
+      SSH Connection Test:
+      ssh -i {{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }} -p {{ ssh_port }} {{ jenkins_agent_user }}@localhost
+
+      Environment:
+      {% for env in jenkins_agent_env_vars %}
+      {{ env.name }}={{ env.value }}
+      {% endfor %}
+    mode: "0644"
+
+- name: Test SSH connection to localhost
+  ansible.builtin.command: >
+    ssh -i {{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }}
+    -p {{ ssh_port }}
+    -o StrictHostKeyChecking=no
+    -o BatchMode=yes
+    {{ jenkins_agent_user }}@localhost
+    echo "SSH connection successful"
+  register: ssh_test
+  changed_when: false
+  when: verify_agent_setup | bool
+
+- name: Display agent setup information
+  ansible.builtin.debug:
+    msg:
+      - "Jenkins agent configuration complete!"
+      - "Agent name: {{ jenkins_agent_name }}"
+      - "Agent home: {{ jenkins_agent_home }}"
+      - "Labels: {{ jenkins_agent_labels }}"
+      - "Executors: {{ jenkins_agent_executors }}"
+      - "SSH key: {{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }}"
+      - "SSH test: {{ 'PASSED' if ssh_test is succeeded else 'Check manually' }}"

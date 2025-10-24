@@ -1,0 +1,25 @@
+#!/data/data/com.termux/files/usr/bin/bash
+#
+# Jenkins service script for termux-services
+# Managed by Ansible - do not edit manually
+
+exec 2>&1
+
+# Configuration
+JENKINS_HOME="{{ jenkins_home }}"
+JENKINS_WAR="{{ jenkins_war_path }}"
+JENKINS_JAVA_OPTIONS="{{ jenkins_java_options }}"
+JENKINS_ARGS="{{ jenkins_args }}"
+JAVA_BIN="{{ java_bin }}"
+
+# Set environment
+export JENKINS_HOME
+
+# Ensure directories exist
+mkdir -p "$JENKINS_HOME"
+mkdir -p "{{ jenkins_log_dir }}"
+
+# Start Jenkins (exec replaces shell with Java process)
+exec "$JAVA_BIN" $JENKINS_JAVA_OPTIONS \
+    -jar "$JENKINS_WAR" \
+    $JENKINS_ARGS
