@@ -18,7 +18,10 @@ This repository provides a turnkey Ansible-based automation that:
 
 **On your Android phone:**
 - Termux installed from [F-Droid](https://f-droid.org/packages/com.termux/)
-- At least 500MB free storage
+- Storage requirements:
+  - **Minimum**: 500MB free storage (base installation)
+  - **Recommended**: 2GB+ free storage (complete setup with all packages)
+  - Automatic storage validation before installation
 - Connected to WiFi
 
 **On your laptop/PC:**
@@ -75,11 +78,18 @@ ansible-playbook ansible/playbooks/99-complete-setup.yaml
 ## 🎭 What Gets Installed
 
 **On Termux:**
-- OpenJDK 21 (Jenkins requirement)
-- Jenkins LTS (latest)
-- SSH daemon (for agent connection)
-- Build tools: Git, Python, Node.js, Make, Clang
-- Jenkins plugins (minimal set for CI/CD)
+- **Core packages**: OpenJDK 21, Jenkins LTS, SSH daemon
+- **Comprehensive package suite** (59+ packages via `termux-complete-setup` role):
+  - **Build Essentials** (15): clang, gcc-8*, cmake, make, autoconf, automake, libtool, etc.
+  - **Programming Languages** (6): openjdk-21, python, golang, rust, perl, tcl
+  - **Development Tools** (14): git, gh, maven, gnupg, curl, wget, dos2unix, etc.
+  - **Network Tools** (7): openssh, nmap, inetutils, iproute2, net-tools, lsof
+  - **System Utilities** (10): htop, nano, termux-services, runit, procps, psmisc
+  - **Archive Tools** (7): tar, gzip, bzip2, xz-utils, zip, unzip, zstd
+- **Additional Repositories**: Automatically configured (pointless, root) for extended package availability*
+- **Termux:API**: Optional CLI tools for Android device integration
+
+*gcc-8 and some packages require additional repositories which are automatically configured
 
 **Jenkins Configuration:**
 - Pre-configured admin user
