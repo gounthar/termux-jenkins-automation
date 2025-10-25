@@ -59,6 +59,7 @@ temp/
 # Context and progress (local only)
 CONTEXT.md
 PROGRESS.md
+CLAUDE.md
 
 # Test artifacts
 .pytest_cache/

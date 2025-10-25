@@ -48,6 +48,7 @@ ansible-playbook ansible/playbooks/99-complete-setup.yaml
 ## 📚 Documentation
 
 - [Prerequisites](docs/PREREQUISITES.md) - Detailed requirements and setup
+- [Termux Setup](docs/TERMUX-SETUP.md) - Complete package list and Termux add-on apps
 - [Architecture](docs/ARCHITECTURE.md) - How the system works
 - [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [Expanding Setup](docs/EXPANDING.md) - Add more phones to your cluster
