@@ -17,10 +17,15 @@ This repository provides a turnkey Ansible-based automation that:
 ### Prerequisites
 
 **On your Android phone:**
-- **Termux** installed from [F-Droid](https://f-droid.org/packages/com.termux/) (required)
-- **Termux companion apps** from F-Droid (optional but recommended):
-  - [Termux:API](https://f-droid.org/packages/com.termux.api/) - Enables Android device API access (battery, location, notifications, etc.)
-  - [Termux:Boot](https://f-droid.org/packages/com.termux.boot/) - Auto-start services on device boot
+- **Termux** installed (required)
+  - Recommended: [F-Droid](https://f-droid.org/packages/com.termux/)
+  - Alternative: [GitHub Releases](https://github.com/termux/termux-app/releases)
+  - ⚠️ **Do NOT use Google Play Store version** (outdated and incompatible)
+- **Termux companion apps** (optional but recommended):
+  - **Termux:API** - Enables Android device API access (battery, location, notifications, etc.)
+    - [F-Droid](https://f-droid.org/packages/com.termux.api/) | [GitHub](https://github.com/termux/termux-api/releases)
+  - **Termux:Boot** - Auto-start services on device boot
+    - [F-Droid](https://f-droid.org/packages/com.termux.boot/) | [GitHub](https://github.com/termux/termux-boot/releases)
 - Storage requirements:
   - **Minimum**: 500MB free storage (base installation)
   - **Recommended**: 2GB+ free storage (complete setup with all packages)
