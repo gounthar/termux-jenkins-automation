@@ -29,6 +29,25 @@ install_system_utilities: true    # System utilities (htop, nano, procps)
 install_termux_api: true          # Termux API CLI tools
 ```
 
+### Repository Configuration
+
+**IMPORTANT**: Additional Termux repositories must be configured before installing certain packages (like `gcc-8` which requires the pointless repository).
+
+```yaml
+configure_repositories: true   # Configure additional Termux repos before package installation
+enable_root_repo: true         # Enable root-repo (additional packages)
+enable_pointless_repo: true    # Enable its-pointless repo (gcc-8, science packages)
+enable_jenkins_repo: false     # Enable Jenkins repo (only if installing Jenkins)
+```
+
+**Repositories configured**:
+- **Main Termux** (default): Standard Termux packages
+- **Root repo** (`root-repo` package): Additional system packages
+- **Pointless repo**: Scientific computing, gcc-8, extra tools
+- **Jenkins repo** (optional): Official Jenkins LTS packages
+
+**Why this matters**: Without these repositories, packages like `gcc-8` will fail with "Unable to locate package" errors on fresh Termux installations.
+
 ### Storage Management
 
 ```yaml

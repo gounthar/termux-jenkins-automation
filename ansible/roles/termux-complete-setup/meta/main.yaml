@@ -21,5 +21,6 @@ galaxy_info:
     - mobile
     - devops
 
-dependencies:
-  - role: termux-base
+# Temporarily disabled for testing - termux-base has SSH config issue
+# dependencies:
+#   - role: termux-base

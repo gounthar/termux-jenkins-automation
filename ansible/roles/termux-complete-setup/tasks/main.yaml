@@ -31,6 +31,10 @@
     - available_storage.stdout | int < recommended_storage_mb
     - available_storage.stdout | int >= minimum_storage_mb
 
+- name: Configure additional repositories
+  ansible.builtin.import_tasks: repositories.yaml
+  when: configure_repositories | bool
+
 - name: Update package lists
   ansible.builtin.command: "{{ termux_bin }}/pkg update -y"
   changed_when: false

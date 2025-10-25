@@ -14,8 +14,16 @@ check_storage_space: true
 minimum_storage_mb: 500
 recommended_storage_mb: 2048
 
-# Termux binary path
+# Termux paths
+termux_home: /data/data/com.termux/files/home
 termux_bin: /data/data/com.termux/files/usr/bin
+termux_prefix: /data/data/com.termux/files
+
+# Repository configuration
+configure_repositories: true
+enable_root_repo: true
+enable_pointless_repo: true
+enable_jenkins_repo: false  # Only needed if installing Jenkins
 
 # Build Essential Packages
 build_essential_packages:
