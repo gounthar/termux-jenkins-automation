@@ -9,7 +9,7 @@ all:
     termux_controller:
       hosts:
         phone1:
-          ansible_host: 192.168.1.50  # Update with your phone's IP
+          ansible_host: 192.168.1.53  # Update with your phone's IP
           ansible_port: 8022
           ansible_user: termux
           ansible_connection: ssh
@@ -18,7 +18,7 @@ all:
     termux_agents:
       hosts:
         phone1:  # First phone is both controller and agent
-          ansible_host: 192.168.1.50
+          ansible_host: 192.168.1.53
           ansible_port: 8022
           ansible_user: termux
 

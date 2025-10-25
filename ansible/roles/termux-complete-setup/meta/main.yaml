@@ -1,0 +1,26 @@
+---
+galaxy_info:
+  role_name: termux_complete_setup
+  author: CloudNord Jenkins Automation Project
+  description: Complete Termux package installation for reproducible Android development environments
+  license: Apache-2.0
+
+  min_ansible_version: "2.10"
+
+  platforms:
+    - name: Android
+      versions:
+        - all
+
+  galaxy_tags:
+    - termux
+    - android
+    - development
+    - ci
+    - jenkins
+    - mobile
+    - devops
+
+# Temporarily disabled for testing - termux-base has SSH config issue
+# dependencies:
+#   - role: termux-base

@@ -1,0 +1,67 @@
+---
+# Configure Termux package repositories
+# This must run before package installation to ensure all packages are available
+
+- name: Install root-repo package
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y root-repo"
+  register: root_repo_result
+  changed_when: "'Setting up' in root_repo_result.stdout"
+  failed_when:
+    - root_repo_result.rc != 0
+    - "'already installed' not in root_repo_result.stdout"
+  when: enable_root_repo | bool
+
+- name: Check if pointless repository is already configured
+  ansible.builtin.stat:
+    path: "{{ termux_prefix }}/usr/etc/apt/sources.list.d/pointless.list"
+  register: pointless_repo_file
+  when: enable_pointless_repo | bool
+
+- name: Add its-pointless repository
+  ansible.builtin.copy:
+    dest: "{{ termux_prefix }}/usr/etc/apt/sources.list.d/pointless.list"
+    content: |
+      deb https://its-pointless.github.io/files/21 termux extras
+    mode: '0644'
+  register: pointless_repo_added
+  when:
+    - enable_pointless_repo | bool
+    - not pointless_repo_file.stat.exists
+
+- name: Check if pointless GPG key exists
+  ansible.builtin.stat:
+    path: "{{ termux_prefix }}/usr/etc/apt/trusted.gpg.d/pointless.gpg"
+  register: pointless_key_file
+  when: enable_pointless_repo | bool
+
+- name: Download pointless repository GPG key
+  ansible.builtin.get_url:
+    url: https://its-pointless.github.io/pointless.gpg
+    dest: "{{ termux_prefix }}/usr/etc/apt/trusted.gpg.d/pointless.gpg"
+    mode: '0644'
+  when:
+    - enable_pointless_repo | bool
+    - not pointless_key_file.stat.exists
+  register: pointless_key_added
+
+- name: Update package lists after repository changes
+  ansible.builtin.command: "{{ termux_bin }}/pkg update -y"
+  when:
+    - configure_repositories | bool
+    - (pointless_repo_added.changed | default(false)) or (pointless_key_added.changed | default(false)) or (root_repo_result.changed | default(false))
+  changed_when: false
+
+- name: Display configured repositories
+  ansible.builtin.command: "{{ termux_bin }}/apt-cache policy"
+  register: repo_list
+  changed_when: false
+  when: configure_repositories | bool
+
+- name: Show repository configuration status
+  ansible.builtin.debug:
+    msg:
+      - "Repository configuration complete:"
+      - "  - Root repo: {{ 'enabled' if enable_root_repo else 'disabled' }}"
+      - "  - Pointless repo: {{ 'enabled' if enable_pointless_repo else 'disabled' }}"
+      - "  - Jenkins repo: {{ 'pre-configured' if enable_jenkins_repo else 'not needed' }}"
+  when: configure_repositories | bool

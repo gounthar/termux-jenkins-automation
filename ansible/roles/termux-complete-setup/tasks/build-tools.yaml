@@ -1,0 +1,19 @@
+---
+# Build essential packages installation
+
+- name: Install build essential packages
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ build_essential_packages | join(' ') }}"
+  register: build_pkg_result
+  changed_when: "'Setting up' in build_pkg_result.stdout"
+
+- name: Verify clang installation
+  ansible.builtin.command: "{{ termux_bin }}/clang --version"
+  register: clang_version
+  changed_when: false
+
+- name: Display build tools installation summary
+  ansible.builtin.debug:
+    msg:
+      - "Build essential packages installed:"
+      - "Clang: {{ clang_version.stdout.split('\n')[0] }}"
+      - "Total packages: {{ build_essential_packages | length }}"

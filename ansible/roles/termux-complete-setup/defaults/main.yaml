@@ -1,0 +1,133 @@
+---
+# Default variables for termux-complete-setup role
+# Complete package installation based on TERMUX-SETUP.md documentation
+
+# Enable/disable package groups
+install_build_essentials: true
+install_languages: true
+install_dev_tools: true
+install_network_tools: true
+install_system_utilities: true
+
+# Storage check
+check_storage_space: true
+minimum_storage_mb: 500
+recommended_storage_mb: 2048
+
+# Termux paths
+termux_home: /data/data/com.termux/files/home
+termux_bin: /data/data/com.termux/files/usr/bin
+termux_prefix: /data/data/com.termux/files
+
+# Repository configuration
+configure_repositories: true
+enable_root_repo: true
+enable_pointless_repo: true
+enable_jenkins_repo: false  # Only needed if installing Jenkins
+
+# Build Essential Packages
+build_essential_packages:
+  - build-essential
+  - binutils
+  - clang
+  - gcc-8
+  - make
+  - cmake
+  - autoconf
+  - automake
+  - libtool
+  - m4
+  - bison
+  - flex
+  - patch
+  - gperf
+  - pkg-config
+
+# Programming Languages & Runtimes
+language_packages:
+  - openjdk-21
+  - python
+  - golang
+  - rust
+  - perl
+  - tcl
+
+# Development Tools
+dev_tool_packages:
+  - git
+  - gh
+  - maven
+  - gnupg
+  - curl
+  - wget
+  - dos2unix
+  - file
+  - findutils
+  - grep
+  - sed
+  - gawk
+  - diffutils
+  - which
+
+# Network Tools
+network_tool_packages:
+  - openssh
+  - openssh-sftp-server
+  - inetutils
+  - iproute2
+  - net-tools
+  - nmap
+  - lsof
+
+# System Utilities
+system_utility_packages:
+  - htop
+  - nano
+  - less
+  - dialog
+  - procps
+  - psmisc
+  - termux-services
+  - runit
+  - termux-tools
+  - termux-exec
+
+# Compression & Archive Tools
+archive_packages:
+  - tar
+  - gzip
+  - bzip2
+  - xz-utils
+  - zip
+  - unzip
+  - zstd
+
+# Termux API (requires Termux:API app installed)
+install_termux_api: true
+termux_api_packages:
+  - termux-api
+
+# Python pip packages (optional)
+install_python_packages: false
+python_pip_packages:
+  - pip
+  - setuptools
+  - wheel
+
+# Verification settings
+verify_installations: true
+verify_tools:
+  - name: "Java"
+    command: "java -version"
+  - name: "Python"
+    command: "python --version"
+  - name: "Go"
+    command: "go version"
+  - name: "Git"
+    command: "git --version"
+  - name: "Maven"
+    command: "mvn --version"
+
+# Package update before installation
+update_packages_before_install: true
+upgrade_packages_before_install: false

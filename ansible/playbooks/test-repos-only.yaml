@@ -1,0 +1,64 @@
+---
+# Test playbook for repository configuration only
+# This tests ONLY the termux-complete-setup role, skipping termux-base
+
+- name: Test Repository Configuration
+  hosts: termux_controller
+  gather_facts: false
+  become: false
+
+  vars:
+    # Test only repository configuration and build tools (needs gcc-8 from pointless)
+    install_build_essentials: true
+    install_languages: false
+    install_dev_tools: false
+    install_network_tools: false
+    install_system_utilities: false
+    install_termux_api: false
+
+    # Repository configuration (main test)
+    configure_repositories: true
+    enable_root_repo: true
+    enable_pointless_repo: true
+
+    # Storage and package settings
+    check_storage_space: false  # Disable for testing
+    minimum_storage_mb: 100
+    verify_installations: true
+    update_packages_before_install: false
+    upgrade_packages_before_install: false
+
+  pre_tasks:
+    - name: Display test information
+      ansible.builtin.debug:
+        msg:
+          - "╔════════════════════════════════════════════════════════╗"
+          - "║   Testing: Repository Configuration                   ║"
+          - "╚════════════════════════════════════════════════════════╝"
+          - ""
+          - "This test will:"
+          - "  1. Configure additional repositories (pointless, root)"
+          - "  2. Install build tools (including gcc-8 from pointless)"
+          - "  3. Verify repository configuration"
+          - ""
+
+  roles:
+    - role: ../roles/termux-complete-setup
+
+  post_tasks:
+    - name: Verify gcc-8 is available
+      ansible.builtin.command: "/data/data/com.termux/files/usr/bin/pkg show gcc-8"
+      register: gcc8_check
+      changed_when: false
+      failed_when: false
+
+    - name: Display test results
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "╔════════════════════════════════════════════════════════╗"
+          - "║   Repository Test Complete!                           ║"
+          - "╚════════════════════════════════════════════════════════╝"
+          - ""
+          - "gcc-8 availability: {{ 'AVAILABLE' if gcc8_check.rc == 0 else 'NOT FOUND' }}"
+          - ""
