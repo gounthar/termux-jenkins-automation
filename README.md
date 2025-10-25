@@ -85,9 +85,13 @@ ansible-playbook ansible/playbooks/99-complete-setup.yaml
   - **System Utilities** (10): htop, nano, termux-services, runit, procps, psmisc
   - **Archive Tools** (7): tar, gzip, bzip2, xz-utils, zip, unzip, zstd
 - **Additional Repositories**: Automatically configured (pointless, root) for extended package availability*
-- **Termux:API**: Optional CLI tools for Android device integration
+- **Termux:API**: Optional Android device integration**
+  - CLI tools (`termux-api` package) - installed automatically by this role
+  - Companion app (from F-Droid) - must be installed manually for API functionality
 
 *gcc-8 and some packages require additional repositories which are automatically configured
+
+**Termux:API requires both components: the Android companion app (com.termux.api from F-Droid) AND the CLI package. The role installs the CLI package and checks for the app, but full functionality requires manual installation of the companion app.
 
 **Jenkins Configuration:**
 - Pre-configured admin user
