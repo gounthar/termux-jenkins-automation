@@ -17,7 +17,10 @@ This repository provides a turnkey Ansible-based automation that:
 ### Prerequisites
 
 **On your Android phone:**
-- Termux installed from [F-Droid](https://f-droid.org/packages/com.termux/)
+- **Termux** installed from [F-Droid](https://f-droid.org/packages/com.termux/) (required)
+- **Termux companion apps** from F-Droid (optional but recommended):
+  - [Termux:API](https://f-droid.org/packages/com.termux.api/) - Enables Android device API access (battery, location, notifications, etc.)
+  - [Termux:Boot](https://f-droid.org/packages/com.termux.boot/) - Auto-start services on device boot
 - Storage requirements:
   - **Minimum**: 500MB free storage (base installation)
   - **Recommended**: 2GB+ free storage (complete setup with all packages)
@@ -85,13 +88,9 @@ ansible-playbook ansible/playbooks/99-complete-setup.yaml
   - **System Utilities** (10): htop, nano, termux-services, runit, procps, psmisc
   - **Archive Tools** (7): tar, gzip, bzip2, xz-utils, zip, unzip, zstd
 - **Additional Repositories**: Automatically configured (pointless, root) for extended package availability*
-- **Termux:API**: Optional Android device integration**
-  - CLI tools (`termux-api` package) - installed automatically by this role
-  - Companion app (from F-Droid) - must be installed manually for API functionality
+- **Termux:API CLI tools**: Automatically installed if Termux:API companion app is present (see Prerequisites)
 
 *gcc-8 and some packages require additional repositories which are automatically configured
-
-**Termux:API requires both components: the Android companion app (com.termux.api from F-Droid) AND the CLI package. The role installs the CLI package and checks for the app, but full functionality requires manual installation of the companion app.
 
 **Jenkins Configuration:**
 - Pre-configured admin user
