@@ -1,0 +1,42 @@
+---
+# Programming languages and runtimes installation
+
+- name: Install language runtime packages
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
+  loop: "{{ language_packages }}"
+  register: lang_pkg_result
+  changed_when: "'Setting up' in lang_pkg_result.stdout"
+  failed_when:
+    - lang_pkg_result.rc != 0
+    - "'already installed' not in lang_pkg_result.stdout"
+
+- name: Verify Java installation
+  ansible.builtin.command: "{{ termux_bin }}/java -version"
+  register: java_version
+  changed_when: false
+
+- name: Verify Python installation
+  ansible.builtin.command: "{{ termux_bin }}/python --version"
+  register: python_version
+  changed_when: false
+
+- name: Verify Go installation
+  ansible.builtin.command: "{{ termux_bin }}/go version"
+  register: go_version
+  changed_when: false
+
+- name: Install Python pip packages
+  ansible.builtin.command: "{{ termux_bin }}/pip install {{ item }}"
+  loop: "{{ python_pip_packages }}"
+  when: install_python_packages | bool
+  register: pip_result
+  changed_when: "'Successfully installed' in pip_result.stdout"
+
+- name: Display languages installation summary
+  ansible.builtin.debug:
+    msg:
+      - "Programming languages installed:"
+      - "{{ java_version.stderr.split('\n')[0] if java_version.stderr else 'Java: installed' }}"
+      - "{{ python_version.stdout }}"
+      - "{{ go_version.stdout }}"
+      - "Total packages: {{ language_packages | length }}"

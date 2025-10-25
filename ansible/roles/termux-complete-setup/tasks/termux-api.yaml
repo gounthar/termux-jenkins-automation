@@ -1,0 +1,37 @@
+---
+# Termux API installation
+
+- name: Check if Termux:API app is installed
+  ansible.builtin.command: pm list packages | grep com.termux.api
+  register: termux_api_app
+  changed_when: false
+  failed_when: false
+
+- name: Display Termux:API app status
+  ansible.builtin.debug:
+    msg: "WARNING: Termux:API Android app is not installed. Install from F-Droid: https://f-droid.org/packages/com.termux.api/"
+  when: termux_api_app.rc != 0
+
+- name: Install Termux API CLI package
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
+  loop: "{{ termux_api_packages }}"
+  register: api_pkg_result
+  changed_when: "'Setting up' in api_pkg_result.stdout"
+  failed_when:
+    - api_pkg_result.rc != 0
+    - "'already installed' not in api_pkg_result.stdout"
+
+- name: Test Termux API functionality
+  ansible.builtin.command: "{{ termux_bin }}/termux-battery-status"
+  register: api_test
+  changed_when: false
+  failed_when: false
+  when: termux_api_app.rc == 0
+
+- name: Display Termux API installation summary
+  ansible.builtin.debug:
+    msg:
+      - "Termux API installed:"
+      - "  - CLI package: installed"
+      - "  - Android app: {{ 'installed' if termux_api_app.rc == 0 else 'NOT INSTALLED' }}"
+      - "  - Functionality test: {{ 'PASSED' if api_test.rc == 0 else 'Install Android app to enable' }}"

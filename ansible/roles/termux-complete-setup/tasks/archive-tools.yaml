@@ -1,0 +1,19 @@
+---
+# Compression and archive tools installation
+
+- name: Install archive tool packages
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
+  loop: "{{ archive_packages }}"
+  register: archive_pkg_result
+  changed_when: "'Setting up' in archive_pkg_result.stdout"
+  failed_when:
+    - archive_pkg_result.rc != 0
+    - "'already installed' not in archive_pkg_result.stdout"
+
+- name: Display archive tools installation summary
+  ansible.builtin.debug:
+    msg:
+      - "Archive tools installed:"
+      - "  - tar, gzip, bzip2, xz-utils"
+      - "  - zip, unzip, zstd"
+      - "Total packages: {{ archive_packages | length }}"

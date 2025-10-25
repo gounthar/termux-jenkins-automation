@@ -1,0 +1,92 @@
+---
+# Main tasks for termux-complete-setup role
+# Orchestrates installation of all Termux packages
+
+- name: Check available storage space
+  ansible.builtin.shell: df -m {{ termux_home }} | tail -1 | awk '{print $4}'
+  register: available_storage
+  changed_when: false
+  when: check_storage_space | bool
+
+- name: Display storage information
+  ansible.builtin.debug:
+    msg:
+      - "Available storage: {{ available_storage.stdout }} MB"
+      - "Minimum required: {{ minimum_storage_mb }} MB"
+      - "Recommended: {{ recommended_storage_mb }} MB"
+  when: check_storage_space | bool
+
+- name: Fail if insufficient storage
+  ansible.builtin.fail:
+    msg: "Insufficient storage space. Available: {{ available_storage.stdout }} MB, Required: {{ minimum_storage_mb }} MB"
+  when:
+    - check_storage_space | bool
+    - available_storage.stdout | int < minimum_storage_mb
+
+- name: Warn if storage is below recommended
+  ansible.builtin.debug:
+    msg: "WARNING: Storage ({{ available_storage.stdout }} MB) is below recommended ({{ recommended_storage_mb }} MB). Installation may fail or be incomplete."
+  when:
+    - check_storage_space | bool
+    - available_storage.stdout | int < recommended_storage_mb
+    - available_storage.stdout | int >= minimum_storage_mb
+
+- name: Update package lists
+  ansible.builtin.command: "{{ termux_bin }}/pkg update -y"
+  changed_when: false
+  when: update_packages_before_install | bool
+
+- name: Upgrade existing packages
+  ansible.builtin.command: "{{ termux_bin }}/pkg upgrade -y"
+  register: pkg_upgrade_result
+  changed_when: "'Upgrading' in pkg_upgrade_result.stdout"
+  when: upgrade_packages_before_install | bool
+
+- name: Install build essential packages
+  ansible.builtin.import_tasks: build-tools.yaml
+  when: install_build_essentials | bool
+
+- name: Install programming languages
+  ansible.builtin.import_tasks: languages.yaml
+  when: install_languages | bool
+
+- name: Install development tools
+  ansible.builtin.import_tasks: dev-tools.yaml
+  when: install_dev_tools | bool
+
+- name: Install network tools
+  ansible.builtin.import_tasks: network-tools.yaml
+  when: install_network_tools | bool
+
+- name: Install system utilities
+  ansible.builtin.import_tasks: system-utilities.yaml
+  when: install_system_utilities | bool
+
+- name: Install compression and archive tools
+  ansible.builtin.import_tasks: archive-tools.yaml
+
+- name: Install Termux API
+  ansible.builtin.import_tasks: termux-api.yaml
+  when: install_termux_api | bool
+
+- name: Verify installations
+  ansible.builtin.import_tasks: verify.yaml
+  when: verify_installations | bool
+
+- name: Display completion message
+  ansible.builtin.debug:
+    msg:
+      - ""
+      - "╔════════════════════════════════════════════════════════╗"
+      - "║   Termux Complete Setup - Installation Complete       ║"
+      - "╚════════════════════════════════════════════════════════╝"
+      - ""
+      - "Package groups installed:"
+      - "  - Build essentials: {{ 'Yes' if install_build_essentials else 'No' }}"
+      - "  - Programming languages: {{ 'Yes' if install_languages else 'No' }}"
+      - "  - Development tools: {{ 'Yes' if install_dev_tools else 'No' }}"
+      - "  - Network tools: {{ 'Yes' if install_network_tools else 'No' }}"
+      - "  - System utilities: {{ 'Yes' if install_system_utilities else 'No' }}"
+      - "  - Termux API: {{ 'Yes' if install_termux_api else 'No' }}"
+      - ""
+      - "For detailed package list, see: docs/TERMUX-SETUP.md"

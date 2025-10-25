@@ -1,0 +1,21 @@
+---
+# System utilities installation
+
+- name: Install system utility packages
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
+  loop: "{{ system_utility_packages }}"
+  register: sys_pkg_result
+  changed_when: "'Setting up' in sys_pkg_result.stdout"
+  failed_when:
+    - sys_pkg_result.rc != 0
+    - "'already installed' not in sys_pkg_result.stdout"
+
+- name: Display system utilities installation summary
+  ansible.builtin.debug:
+    msg:
+      - "System utilities installed:"
+      - "  - htop (process monitor)"
+      - "  - nano (text editor)"
+      - "  - termux-services (service management)"
+      - "  - runit (init system)"
+      - "Total packages: {{ system_utility_packages | length }}"

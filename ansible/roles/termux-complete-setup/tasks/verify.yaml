@@ -1,0 +1,24 @@
+---
+# Verification tasks
+
+- name: Verify tool installations
+  ansible.builtin.command: "{{ termux_bin }}/{{ item.command }}"
+  loop: "{{ verify_tools }}"
+  register: tool_versions
+  changed_when: false
+  failed_when: false
+
+- name: Display verification results
+  ansible.builtin.debug:
+    msg:
+      - ""
+      - "Installation Verification:"
+      - "========================="
+      - "{% for result in tool_versions.results %}"
+      - "{{ verify_tools[loop.index0].name }}: {{ 'OK' if result.rc == 0 else 'FAILED' }}"
+      - "{% endfor %}"
+      - ""
+      - "Detailed versions:"
+      - "{% for result in tool_versions.results %}"
+      - "{{ result.stdout | default(result.stderr) | default('Not available') }}"
+      - "{% endfor %}"

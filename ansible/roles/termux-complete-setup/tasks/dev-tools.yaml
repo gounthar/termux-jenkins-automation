@@ -1,0 +1,29 @@
+---
+# Development tools installation
+
+- name: Install development tool packages
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
+  loop: "{{ dev_tool_packages }}"
+  register: dev_pkg_result
+  changed_when: "'Setting up' in dev_pkg_result.stdout"
+  failed_when:
+    - dev_pkg_result.rc != 0
+    - "'already installed' not in dev_pkg_result.stdout"
+
+- name: Verify Git installation
+  ansible.builtin.command: "{{ termux_bin }}/git --version"
+  register: git_version
+  changed_when: false
+
+- name: Verify GitHub CLI installation
+  ansible.builtin.command: "{{ termux_bin }}/gh --version"
+  register: gh_version
+  changed_when: false
+
+- name: Display dev tools installation summary
+  ansible.builtin.debug:
+    msg:
+      - "Development tools installed:"
+      - "{{ git_version.stdout }}"
+      - "{{ gh_version.stdout.split('\n')[0] }}"
+      - "Total packages: {{ dev_tool_packages | length }}"
