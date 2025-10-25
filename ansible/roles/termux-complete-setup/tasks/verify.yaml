@@ -2,7 +2,7 @@
 # Verification tasks
 
 - name: Verify tool installations
-  ansible.builtin.command: "{{ termux_bin }}/{{ item.command }}"
+  ansible.builtin.shell: "{{ termux_bin }}/{{ item.command }}"
   loop: "{{ verify_tools }}"
   register: tool_versions
   changed_when: false

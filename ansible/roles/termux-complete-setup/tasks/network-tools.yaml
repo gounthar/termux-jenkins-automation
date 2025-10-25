@@ -2,13 +2,9 @@
 # Network tools installation
 
 - name: Install network tool packages
-  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
-  loop: "{{ network_tool_packages }}"
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ network_tool_packages | join(' ') }}"
   register: net_pkg_result
   changed_when: "'Setting up' in net_pkg_result.stdout"
-  failed_when:
-    - net_pkg_result.rc != 0
-    - "'already installed' not in net_pkg_result.stdout"
 
 - name: Verify OpenSSH installation
   ansible.builtin.command: "{{ termux_bin }}/ssh -V"

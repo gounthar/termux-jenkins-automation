@@ -2,13 +2,9 @@
 # Build essential packages installation
 
 - name: Install build essential packages
-  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ item }}"
-  loop: "{{ build_essential_packages }}"
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y {{ build_essential_packages | join(' ') }}"
   register: build_pkg_result
   changed_when: "'Setting up' in build_pkg_result.stdout"
-  failed_when:
-    - build_pkg_result.rc != 0
-    - "'already installed' not in build_pkg_result.stdout"
 
 - name: Verify clang installation
   ansible.builtin.command: "{{ termux_bin }}/clang --version"
