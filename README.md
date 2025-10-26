@@ -55,6 +55,9 @@ pkg update && pkg upgrade
 # 2. Install OpenSSH
 pkg install openssh
 
+# Note: You may see a message about ssh-agent and termux-services
+# This is informational - termux-services will be installed automatically
+
 # 3. Start SSH daemon
 sshd
 
