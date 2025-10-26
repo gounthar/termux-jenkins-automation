@@ -7,6 +7,11 @@
   register: java_install_result
   changed_when: "'Setting up' in java_install_result.stdout"
 
+- name: Install font packages for Jenkins
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y fontconfig freetype ttf-dejavu"
+  register: font_install_result
+  changed_when: "'Setting up' in font_install_result.stdout"
+
 - name: Verify Java installation
   ansible.builtin.command: "{{ java_bin }} -version"
   register: java_version_check
