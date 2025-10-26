@@ -56,7 +56,11 @@ jenkins_admin_password: "{{ lookup('env', 'JENKINS_ADMIN_PASSWORD') | default('a
 
 ## Dependencies
 
-None
+**Optional but recommended:**
+- **rsync** on target system - Significantly improves backup performance with efficient file synchronization
+  - Automatically used if available
+  - Falls back to standard Ansible fetch if not installed
+  - Installed by default when using `termux-complete-setup` role
 
 ## Example Playbook
 

@@ -78,6 +78,7 @@ network_tool_packages:
   - net-tools
   - nmap
   - lsof
+  - rsync  # File synchronization tool (improves backup performance)
 
 # System Utilities
 system_utility_packages:

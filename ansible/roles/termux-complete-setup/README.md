@@ -86,7 +86,7 @@ See `defaults/main.yaml` for complete package lists organized by category:
 - **Build Essentials** (15 packages): build-essential, clang, gcc-8, cmake, make, etc.
 - **Languages** (6 packages): openjdk-21, python, golang, rust, perl, tcl
 - **Dev Tools** (14 packages): git, gh, maven, gnupg, curl, wget, etc.
-- **Network Tools** (7 packages): openssh, nmap, inetutils, net-tools, etc.
+- **Network Tools** (8 packages): openssh, nmap, inetutils, net-tools, rsync, etc.
 - **System Utilities** (10 packages): htop, nano, termux-services, runit, etc.
 - **Archive Tools** (7 packages): tar, gzip, bzip2, zip, unzip, etc.
 

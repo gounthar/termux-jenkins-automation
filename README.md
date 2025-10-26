@@ -85,11 +85,11 @@ ansible-playbook ansible/playbooks/99-complete-setup.yaml
 
 **On Termux:**
 - **Core packages**: OpenJDK 21, Jenkins LTS, SSH daemon
-- **Comprehensive package suite** (59+ packages via `termux-complete-setup` role):
+- **Comprehensive package suite** (60+ packages via `termux-complete-setup` role):
   - **Build Essentials** (15): clang, gcc-8*, cmake, make, autoconf, automake, libtool, etc.
   - **Programming Languages** (6): openjdk-21, python, golang, rust, perl, tcl
   - **Development Tools** (14): git, gh, maven, gnupg, curl, wget, dos2unix, etc.
-  - **Network Tools** (7): openssh, nmap, inetutils, iproute2, net-tools, lsof
+  - **Network Tools** (8): openssh, nmap, inetutils, iproute2, net-tools, lsof, rsync
   - **System Utilities** (10): htop, nano, termux-services, runit, procps, psmisc
   - **Archive Tools** (7): tar, gzip, bzip2, xz-utils, zip, unzip, zstd
 - **Additional Repositories**: Automatically configured (pointless, root) for extended package availability*
