@@ -60,6 +60,38 @@
     mode: "0644"
   when: skip_setup_wizard | bool
 
+- name: Create admin user with known password for automation
+  ansible.builtin.copy:
+    dest: "{{ jenkins_home }}/init.groovy.d/create-admin.groovy"
+    content: |
+      import jenkins.model.Jenkins
+      import hudson.security.HudsonPrivateSecurityRealm
+      import hudson.security.FullControlOnceLoggedInAuthorizationStrategy
+
+      def instance = Jenkins.getInstance()
+
+      // Create security realm if not exists
+      def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+
+      // Create admin user with known password
+      def adminUsername = "{{ jenkins_admin_user }}"
+      def adminPassword = "{{ jenkins_admin_password }}"
+
+      // Only create if user doesn't exist
+      if (hudsonRealm.getUser(adminUsername) == null) {
+        hudsonRealm.createAccount(adminUsername, adminPassword)
+        instance.setSecurityRealm(hudsonRealm)
+
+        // Set authorization strategy
+        def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+        strategy.setAllowAnonymousRead(false)
+        instance.setAuthorizationStrategy(strategy)
+
+        instance.save()
+        println("Admin user created: ${adminUsername}")
+      }
+    mode: "0644"
+
 - name: Create Jenkins startup script
   ansible.builtin.template:
     src: start-jenkins.sh.j2
