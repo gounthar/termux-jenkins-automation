@@ -41,13 +41,13 @@
 - name: Generate SSH host keys (if not present)
   ansible.builtin.command: ssh-keygen -A
   args:
-    creates: "{{ termux_prefix }}/etc/ssh/ssh_host_ed25519_key"
+    creates: "{{ termux_usr }}/etc/ssh/ssh_host_ed25519_key"
   notify: Restart sshd
 
 - name: Deploy SSH daemon configuration
   ansible.builtin.template:
     src: sshd_config.j2
-    dest: "{{ termux_prefix }}/etc/ssh/sshd_config"
+    dest: "{{ termux_usr }}/etc/ssh/sshd_config"
     mode: "0644"
     backup: true
   notify: Restart sshd
