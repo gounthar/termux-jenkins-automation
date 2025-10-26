@@ -1,0 +1,76 @@
+---
+# Export Jenkins job definitions
+
+- name: Check if Jenkins jobs directory exists
+  ansible.builtin.stat:
+    path: "{{ jenkins_home }}/jobs"
+  register: jobs_dir
+
+- name: Find all job config.xml files
+  ansible.builtin.find:
+    paths: "{{ jenkins_home }}/jobs"
+    patterns: "config.xml"
+    recurse: yes
+  register: job_configs
+  when: jobs_dir.stat.exists
+
+- name: Display number of jobs found
+  ansible.builtin.debug:
+    msg: "Found {{ job_configs.matched | default(0) }} job configuration(s)"
+  when: jobs_dir.stat.exists
+
+- name: Create backup jobs directory
+  ansible.builtin.file:
+    path: "{{ backup_destination }}/jobs"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  become: false
+  when:
+    - jobs_dir.stat.exists
+    - job_configs.matched | default(0) > 0
+
+- name: Fetch job configuration files
+  ansible.builtin.fetch:
+    src: "{{ item.path }}"
+    dest: "{{ backup_destination }}/jobs/"
+    flat: false
+  loop: "{{ job_configs.files }}"
+  when:
+    - jobs_dir.stat.exists
+    - job_configs.matched | default(0) > 0
+
+- name: Create job list summary
+  ansible.builtin.shell: |
+    cd "{{ jenkins_home }}/jobs" && find . -name config.xml -exec dirname {} \; | sed 's|^\./||' | sort
+  register: job_list
+  changed_when: false
+  when: jobs_dir.stat.exists
+
+- name: Save job list to file
+  ansible.builtin.copy:
+    content: |
+      # Jenkins Jobs Backup
+      # Backup Date: {{ ansible_date_time.iso8601 }}
+      # Jenkins Home: {{ jenkins_home }}
+      # Total Jobs: {{ job_configs.matched | default(0) }}
+
+      {% if job_list.stdout_lines is defined %}
+      {% for job in job_list.stdout_lines %}
+      - {{ job }}
+      {% endfor %}
+      {% endif %}
+    dest: "{{ backup_destination }}/jobs/JOB_LIST.txt"
+  delegate_to: localhost
+  become: false
+  when:
+    - jobs_dir.stat.exists
+    - job_configs.matched | default(0) > 0
+
+- name: Display backup summary for jobs
+  ansible.builtin.debug:
+    msg:
+      - "Job definitions backed up successfully"
+      - "Location: {{ backup_destination }}/jobs/"
+      - "Jobs backed up: {{ job_configs.matched | default(0) }}"
+  when: jobs_dir.stat.exists

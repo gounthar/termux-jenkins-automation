@@ -22,6 +22,9 @@ jenkins-home/
 *.hpi
 plugins/
 
+# Jenkins backups (local only)
+ansible/playbooks/backups/
+
 # Python
 __pycache__/
 *.py[cod]
