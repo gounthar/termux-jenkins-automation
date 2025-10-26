@@ -21,7 +21,7 @@ jenkins_jobs_dir: "{{ jenkins_home }}/jobs"
 # Jenkins configuration
 jenkins_port: 8080
 jenkins_http_listen_address: "0.0.0.0"
-jenkins_java_options: "-Xmx512m -Xms256m"
+jenkins_java_options: "-Djava.awt.headless=true -Xmx512m -Xms256m"
 jenkins_args: "--httpPort={{ jenkins_port }} --httpListenAddress={{ jenkins_http_listen_address }}"
 
 # Admin configuration
