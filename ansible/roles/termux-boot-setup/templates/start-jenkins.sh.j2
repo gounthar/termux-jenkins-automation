@@ -29,9 +29,7 @@ fi
 
 {% endif %}
 # Wait for network connectivity
-# Jenkins needs network for
-
- SCM polling, webhooks, and remote access
+# Jenkins needs network for SCM polling, webhooks, and remote access
 echo "[$(date +%T)] Waiting {{ network_wait_seconds }} seconds for network..."
 sleep {{ network_wait_seconds }}
 echo "[$(date +%T)] Network wait complete"
@@ -39,12 +37,12 @@ echo "[$(date +%T)] Network wait complete"
 # Start configured services
 echo "[$(date +%T)] Starting services..."
 {% for service in boot_services %}
-echo "[$(date +%T)] Enabling {{ service }}..."
-sv-enable {{ service }}
+echo "[$(date +%T)] Starting {{ service }}..."
+sv up {{ service }}
 if [ $? -eq 0 ]; then
-    echo "[$(date +%T)] ✓ {{ service }} enabled"
+    echo "[$(date +%T)] ✓ {{ service }} started"
 else
-    echo "[$(date +%T)] ✗ Failed to enable {{ service }}"
+    echo "[$(date +%T)] ✗ Failed to start {{ service }}"
 fi
 {% endfor %}
 
