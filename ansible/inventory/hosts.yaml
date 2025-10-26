@@ -16,6 +16,7 @@ all:
           ansible_ssh_private_key_file: ~/.ssh/termux_ed25519
           ansible_ssh_common_args: '-o IdentitiesOnly=yes'
           ansible_python_interpreter: /data/data/com.termux/files/usr/bin/python
+          ansible_remote_tmp: /data/data/com.termux/files/home/.ansible/tmp
 
     termux_agents:
       hosts:
@@ -23,6 +24,9 @@ all:
           ansible_host: 192.168.1.53
           ansible_port: 8022
           ansible_user: u0_a504
+          ansible_ssh_private_key_file: ~/.ssh/termux_ed25519
+          ansible_ssh_common_args: '-o IdentitiesOnly=yes'
+          ansible_remote_tmp: /data/data/com.termux/files/home/.ansible/tmp
 
       # Add more agents here:
       # phone2:
