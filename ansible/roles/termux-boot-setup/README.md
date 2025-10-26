@@ -142,7 +142,7 @@ The deployed boot script (`~/.termux/boot/start-jenkins.sh`):
 
 ```bash
 #!/data/data/com.termux/files/usr/bin/bash
-# {{ ansible_managed }}
+# {{ ansible_managed }}   # Replaced by Ansible with file management notice
 
 # Logging to ~/.termux/boot/start-jenkins.log
 LOG_FILE="{{ termux_home }}/.termux/boot/start-jenkins.log"
