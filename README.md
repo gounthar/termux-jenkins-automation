@@ -124,6 +124,38 @@ ansible-playbook ansible/playbooks/03-configure-agent.yaml
 ansible-playbook ansible/playbooks/04-configure-jcasc.yaml
 ```
 
+## 💾 Backup & Restore
+
+Backup your Jenkins configuration before wiping devices or testing new setups:
+
+```bash
+# Backup Jenkins configuration
+ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/backup-jenkins.yaml
+```
+
+**What gets backed up:**
+- ✅ **Job definitions** (all config.xml files)
+- ✅ **Installed plugins** (95+ plugins with versions)
+- ✅ **JCasC configuration** (if modified in Jenkins UI)
+- ✅ **Metadata** (backup date, device info, Jenkins paths)
+
+**Backup location:** `ansible/playbooks/backups/jenkins-<timestamp>.tar.gz`
+
+**Customization:**
+```bash
+# Include build history (can be large)
+ansible-playbook -i ansible/inventory/hosts.yaml \
+  ansible/playbooks/backup-jenkins.yaml \
+  -e backup_build_history=true
+```
+
+**Restore:**
+1. Extract backup: `tar -xzf backups/jenkins-<timestamp>.tar.gz`
+2. Copy job configs to `$JENKINS_HOME/jobs/`
+3. Restart Jenkins
+
+See `ansible/roles/jenkins-backup/README.md` for detailed documentation.
+
 ## 🎁 Demo Jobs Included
 
 1. **hello-world-pipeline**: Simple pipeline showing phone specs
