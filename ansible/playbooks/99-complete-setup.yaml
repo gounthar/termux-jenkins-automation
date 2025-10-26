@@ -22,6 +22,7 @@
           - "  2. Install Jenkins controller"
           - "  3. Configure Jenkins agent with build tools"
           - "  4. Apply Jenkins Configuration as Code"
+          - "  5. Configure auto-start on boot (optional)"
           - ""
           - "Estimated time: 10-15 minutes"
           - "Press Ctrl+C to cancel, or wait to continue..."
@@ -41,6 +42,9 @@
 
 - name: Phase 4 - Apply Jenkins Configuration as Code
   ansible.builtin.import_playbook: 04-configure-jcasc.yaml
+
+- name: Phase 5 - Configure boot auto-start
+  ansible.builtin.import_playbook: 05-configure-boot.yaml
 
 - name: Final summary
   hosts: termux_controller
@@ -67,13 +71,18 @@
           - "   2. Run the 'hello-world' job"
           - "   3. Check the console output"
           - ""
+          - "🔄 Auto-Start on Boot:"
+          - "   Jenkins will start automatically when device reboots"
+          - "   (if Termux:Boot is installed)"
+          - ""
           - "📚 What's next?"
           - "   - Add more phones to your cluster"
           - "   - Create your own build jobs"
           - "   - Customize Jenkins Configuration as Code"
+          - "   - Backup your configuration (backup-jenkins.yaml)"
           - ""
           - "📖 Documentation:"
           - "   - Repository: https://github.com/gounthar/termux-jenkins-automation"
-          - "   - Troubleshooting: docs/TROUBLESHOOTING.md"
+          - "   - Boot Setup: ansible/roles/termux-boot-setup/README.md"
           - ""
           - "Thank you for trying CloudNord automation!"

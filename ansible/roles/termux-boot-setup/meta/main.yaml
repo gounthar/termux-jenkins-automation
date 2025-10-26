@@ -1,0 +1,26 @@
+---
+galaxy_info:
+  role_name: termux-boot-setup
+  author: CloudNord Termux Jenkins Automation
+  description: Configure Jenkins auto-start on Android device boot using Termux:Boot
+  company: CloudNord
+
+  license: MIT
+
+  min_ansible_version: "2.10"
+
+  platforms:
+    - name: Android
+      versions:
+        - all
+
+  galaxy_tags:
+    - termux
+    - jenkins
+    - android
+    - boot
+    - autostart
+    - ci
+    - cd
+
+dependencies: []

@@ -1,0 +1,56 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# {{ ansible_managed }}
+#
+# Termux:Boot startup script for Jenkins CI/CD
+# This script automatically starts Jenkins and SSH when the device boots
+#
+# Location: {{ boot_script_path }}
+# Managed by: termux-boot-setup Ansible role
+
+# Logging
+LOG_FILE="{{ termux_home }}/.termux/boot/start-jenkins.log"
+exec > "$LOG_FILE" 2>&1
+
+echo "==================================="
+echo "Jenkins Boot Script"
+echo "Started: $(date)"
+echo "==================================="
+
+{% if enable_wake_lock %}
+# Acquire wake lock to prevent device sleep
+# This ensures Jenkins remains accessible
+echo "[$(date +%T)] Acquiring wake lock..."
+termux-wake-lock
+if [ $? -eq 0 ]; then
+    echo "[$(date +%T)] ✓ Wake lock acquired"
+else
+    echo "[$(date +%T)] ⚠ Failed to acquire wake lock (termux-api may not be installed)"
+fi
+
+{% endif %}
+# Wait for network connectivity
+# Jenkins needs network for
+
+ SCM polling, webhooks, and remote access
+echo "[$(date +%T)] Waiting {{ network_wait_seconds }} seconds for network..."
+sleep {{ network_wait_seconds }}
+echo "[$(date +%T)] Network wait complete"
+
+# Start configured services
+echo "[$(date +%T)] Starting services..."
+{% for service in boot_services %}
+echo "[$(date +%T)] Enabling {{ service }}..."
+sv-enable {{ service }}
+if [ $? -eq 0 ]; then
+    echo "[$(date +%T)] ✓ {{ service }} enabled"
+else
+    echo "[$(date +%T)] ✗ Failed to enable {{ service }}"
+fi
+{% endfor %}
+
+echo "==================================="
+echo "Jenkins Boot Script Complete"
+echo "Finished: $(date)"
+echo "==================================="
+
+exit 0
