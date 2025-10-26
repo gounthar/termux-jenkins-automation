@@ -18,14 +18,14 @@ This repository provides a turnkey Ansible-based automation that:
 
 **On your Android phone:**
 - **Termux** installed (required)
-  - Recommended: [F-Droid](https://f-droid.org/packages/com.termux/)
-  - Alternative: [GitHub Releases](https://github.com/termux/termux-app/releases)
+  - Recommended: [GitHub Releases](https://github.com/termux/termux-app/releases)
+  - Alternative: [F-Droid](https://f-droid.org/packages/com.termux/)
   - ⚠️ **Do NOT use Google Play Store version** (outdated and incompatible)
 - **Termux companion apps** (optional but recommended):
   - **Termux:API** - Enables Android device API access (battery, location, notifications, etc.)
-    - [F-Droid](https://f-droid.org/packages/com.termux.api/) | [GitHub](https://github.com/termux/termux-api/releases)
+    - [GitHub](https://github.com/termux/termux-api/releases) | [F-Droid](https://f-droid.org/packages/com.termux.api/)
   - **Termux:Boot** - Auto-start Jenkins on device boot (hands-free operation)
-    - [F-Droid](https://f-droid.org/packages/com.termux.boot/) | [GitHub](https://github.com/termux/termux-boot/releases)
+    - [GitHub](https://github.com/termux/termux-boot/releases) | [F-Droid](https://f-droid.org/packages/com.termux.boot/)
     - **Why needed**: Without Termux:Boot, Jenkins must be started manually after each reboot
     - **With Termux:Boot**: ✅ Jenkins starts automatically, ✅ Perfect for demos/production
     - **Configuration**: Automated via `termux-boot-setup` role (optional)
@@ -52,8 +52,8 @@ This repository provides a turnkey Ansible-based automation that:
 # 1. Update packages
 pkg update && pkg upgrade
 
-# 2. Install OpenSSH
-pkg install openssh
+# 2. Install OpenSSH and Python (required for Ansible)
+pkg install openssh python
 
 # Note: You may see a message about ssh-agent and termux-services
 # This is informational - termux-services will be installed automatically
