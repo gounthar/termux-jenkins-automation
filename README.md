@@ -110,7 +110,7 @@ cd termux-jenkins-automation
 # 5. Run complete setup (interactive)
 ansible-playbook ansible/playbooks/99-complete-setup.yaml
 
-# 5. Access Jenkins
+# 6. Access Jenkins
 # On phone: http://localhost:8080
 # From laptop: http://<phone-ip>:8080
 # Login: admin / <password-from-setup>
