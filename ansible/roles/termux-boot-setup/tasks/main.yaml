@@ -58,22 +58,22 @@
 
 - name: Display boot script location
   ansible.builtin.debug:
-    msg:
-      - ""
-      - "✅ Boot script deployed successfully!"
-      - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-      - ""
-      - "Location: {{ boot_script_path }}"
-      - "Log file: {{ termux_home }}/.termux/boot/start-jenkins.log"
-      - ""
-      - "Services configured to start on boot:"
-{% for service in boot_services %}
-      - "  • {{ service }}"
-{% endfor %}
-      - ""
-      - "Network wait time: {{ network_wait_seconds }} seconds"
-      - "Wake lock: {{ 'Enabled' if enable_wake_lock else 'Disabled' }}"
-      - ""
+    msg: |
+
+      ✅ Boot script deployed successfully!
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      Location: {{ boot_script_path }}
+      Log file: {{ termux_home }}/.termux/boot/start-jenkins.log
+
+      Services configured to start on boot:
+      {% for service in boot_services %}
+        • {{ service }}
+      {% endfor %}
+
+      Network wait time: {{ network_wait_seconds }} seconds
+      Wake lock: {{ 'Enabled' if enable_wake_lock else 'Disabled' }}
+
   when: boot_script_deployed is defined and boot_script_deployed.changed
 
 - name: Test boot script syntax
