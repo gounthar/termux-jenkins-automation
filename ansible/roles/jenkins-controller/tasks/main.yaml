@@ -46,17 +46,17 @@
   when: not jenkins_war_stat.stat.exists
   register: jenkins_download
 
-- name: Skip setup wizard by creating init script
+- name: Create UpgradeWizard state file to skip setup wizard
   ansible.builtin.copy:
-    dest: "{{ jenkins_home }}/init.groovy.d/skip-wizard.groovy"
-    content: |
-      import jenkins.model.Jenkins
-      import jenkins.install.InstallState
+    dest: "{{ jenkins_home }}/jenkins.install.UpgradeWizard.state"
+    content: "{{ jenkins_version }}"
+    mode: "0644"
+  when: skip_setup_wizard | bool
 
-      def instance = Jenkins.getInstance()
-      if (!instance.installState.isSetupComplete()) {
-        instance.setInstallState(InstallState.INITIAL_SETUP_COMPLETED)
-      }
+- name: Create InstallUtil state file to mark installation complete
+  ansible.builtin.copy:
+    dest: "{{ jenkins_home }}/jenkins.install.InstallUtil.lastExecVersion"
+    content: "{{ jenkins_version }}"
     mode: "0644"
   when: skip_setup_wizard | bool
 
