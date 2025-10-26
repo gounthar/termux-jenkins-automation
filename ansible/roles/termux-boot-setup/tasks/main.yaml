@@ -1,0 +1,117 @@
+---
+# Main tasks for termux-boot-setup role
+# Configures Jenkins auto-start on device boot using Termux:Boot
+
+- name: Display boot setup information
+  ansible.builtin.debug:
+    msg:
+      - "╔════════════════════════════════════════════════════════╗"
+      - "║   Configuring Jenkins Auto-Start on Boot              ║"
+      - "╚════════════════════════════════════════════════════════╝"
+      - ""
+      - "This role configures Jenkins to start automatically when"
+      - "your Android device boots using Termux:Boot."
+      - ""
+
+- name: Check if Termux:Boot is installed
+  ansible.builtin.stat:
+    path: "{{ termux_home }}/.termux/boot"
+  register: boot_dir_check
+
+- name: Warn if Termux:Boot not installed
+  ansible.builtin.debug:
+    msg:
+      - ""
+      - "⚠️  Termux:Boot NOT DETECTED"
+      - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      - ""
+      - "Without Termux:Boot, Jenkins must be started manually"
+      - "after each device reboot."
+      - ""
+      - "To enable auto-start:"
+      - "  1. Install Termux:Boot from F-Droid:"
+      - "     https://f-droid.org/packages/com.termux.boot/"
+      - "  2. Grant boot permissions to Termux:Boot"
+      - "  3. Reboot device once to initialize"
+      - "  4. Re-run this playbook"
+      - ""
+      - "Manual start command (after reboot):"
+      - "  ssh -p 8022 termux@<phone-ip>"
+      - "  sv-enable sshd && sv-enable jenkins"
+      - ""
+  when: not boot_dir_check.stat.exists
+
+- name: Create boot directory if it doesn't exist
+  ansible.builtin.file:
+    path: "{{ termux_home }}/.termux/boot"
+    state: directory
+    mode: "0700"
+  when: boot_dir_check.stat.exists
+
+- name: Deploy Jenkins boot script
+  ansible.builtin.template:
+    src: start-jenkins.sh.j2
+    dest: "{{ boot_script_path }}"
+    mode: "0700"
+  when: boot_dir_check.stat.exists
+  register: boot_script_deployed
+
+- name: Display boot script location
+  ansible.builtin.debug:
+    msg: |
+
+      ✅ Boot script deployed successfully!
+      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      Location: {{ boot_script_path }}
+      Log file: {{ termux_home }}/.termux/boot/start-jenkins.log
+
+      Services configured to start on boot:
+      {% for service in boot_services %}
+        • {{ service }}
+      {% endfor %}
+
+      Network wait time: {{ network_wait_seconds }} seconds
+      Wake lock: {{ 'Enabled' if enable_wake_lock else 'Disabled' }}
+
+  when: boot_script_deployed is defined and boot_script_deployed.changed
+
+- name: Test boot script syntax
+  ansible.builtin.command: bash -n {{ boot_script_path }}
+  register: syntax_check
+  changed_when: false
+  failed_when: syntax_check.rc != 0
+  when: boot_dir_check.stat.exists
+
+- name: Display testing instructions
+  ansible.builtin.debug:
+    msg:
+      - ""
+      - "Testing Instructions"
+      - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+      - ""
+      - "To test the boot script manually:"
+      - "  {{ boot_script_path }}"
+      - ""
+      - "To test auto-start:"
+      - "  1. Reboot your Android device"
+      - "  2. Wait {{ network_wait_seconds + 60 }} seconds"
+      - "  3. Check Jenkins: http://<phone-ip>:8080"
+      - ""
+      - "View boot logs:"
+      - "  cat {{ termux_home }}/.termux/boot/start-jenkins.log"
+      - ""
+      - "Check service status:"
+      - "  sv status jenkins"
+      - "  sv status sshd"
+      - ""
+  when: boot_dir_check.stat.exists
+
+- name: Display completion summary
+  ansible.builtin.debug:
+    msg:
+      - ""
+      - "╔════════════════════════════════════════════════════════╗"
+      - "║   Boot Configuration {{ ('Complete' if boot_dir_check.stat.exists else 'Skipped') | center(36) }} ║"  # 36 chars = box width (58) - borders (4) - padding (18)
+      - "╚════════════════════════════════════════════════════════╝"
+      - ""

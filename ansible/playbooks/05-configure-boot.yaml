@@ -1,0 +1,78 @@
+---
+# Phase 5: Configure Jenkins Auto-Start on Boot
+#
+# This playbook configures Jenkins to start automatically when the Android
+# device boots using Termux:Boot.
+#
+# Prerequisites:
+#   - Termux installed on Android device
+#   - Jenkins and SSH configured (phases 2-3 completed)
+#   - (Optional) Termux:Boot installed from F-Droid
+#
+# Usage:
+#   ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/05-configure-boot.yaml
+#
+# With custom settings:
+#   ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/05-configure-boot.yaml \
+#     -e network_wait_seconds=60 \
+#     -e enable_wake_lock=false
+
+- name: Configure Jenkins Auto-Start on Boot
+  hosts: termux_controller
+  gather_facts: true
+  become: false
+
+  pre_tasks:
+    - name: Display playbook information
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "╔════════════════════════════════════════════════════════╗"
+          - "║   Phase 5: Configure Boot Auto-Start                  ║"
+          - "╚════════════════════════════════════════════════════════╝"
+          - ""
+          - "This playbook configures Jenkins to start automatically"
+          - "when your Android device boots."
+          - ""
+          - "Requirements:"
+          - "  • Termux:Boot installed (highly recommended)"
+          - "  • Jenkins already configured"
+          - "  • SSH access to device"
+          - ""
+          - "Without Termux:Boot:"
+          - "  Jenkins must be started manually after each reboot."
+          - ""
+
+    - name: Verify we're running on Termux
+      ansible.builtin.stat:
+        path: /data/data/com.termux
+      register: termux_check
+      failed_when: not termux_check.stat.exists
+
+  roles:
+    - termux-boot-setup
+
+  post_tasks:
+    - name: Display next steps
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "Next Steps"
+          - "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          - ""
+          - "If Termux:Boot is installed:"
+          - "  1. Reboot your device to test auto-start"
+          - "  2. Wait 60-90 seconds for boot to complete"
+          - "  3. Access Jenkins: http://{{ ansible_host }}:8080"
+          - "  4. Check logs: ~/.termux/boot/start-jenkins.log"
+          - ""
+          - "If Termux:Boot is NOT installed:"
+          - "  1. Install from F-Droid: https://f-droid.org/packages/com.termux.boot/"
+          - "  2. Grant boot permissions"
+          - "  3. Reboot device once"
+          - "  4. Re-run this playbook"
+          - ""
+          - "Manual start (if needed):"
+          - "  ssh -p 8022 termux@{{ ansible_host }}"
+          - "  sv-enable sshd && sv-enable jenkins"
+          - ""

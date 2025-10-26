@@ -1,0 +1,21 @@
+---
+# Default variables for termux-boot-setup role
+
+# Termux home directory
+termux_home: /data/data/com.termux/files/home
+
+# Boot script configuration
+boot_script_name: start-jenkins.sh
+boot_script_path: "{{ termux_home }}/.termux/boot/{{ boot_script_name }}"
+
+# Network wait time (seconds) before starting services
+# Allows time for network connectivity after boot
+network_wait_seconds: 30
+
+# Services to enable on boot
+boot_services:
+  - sshd      # SSH daemon for remote access
+  - jenkins   # Jenkins CI/CD server
+
+# Enable wake lock to prevent device sleep
+enable_wake_lock: true

@@ -99,8 +99,11 @@ echo
 echo "=== Next Steps ==="
 echo "1. Update ansible/inventory/hosts.yaml with your phone's IP address"
 echo "2. Ensure Termux is installed on your phone (from F-Droid)"
-echo "3. In Termux, run: pkg install openssh && sshd"
-echo "4. Set a password in Termux: passwd"
-echo "5. Run: ansible-playbook ansible/playbooks/99-complete-setup.yaml"
+echo "3. (Optional) Install Termux:Boot for auto-start on device reboot"
+echo "   - https://f-droid.org/packages/com.termux.boot/"
+echo "   - Without it, Jenkins must be started manually after reboot"
+echo "4. In Termux, run: pkg install openssh && sshd"
+echo "5. Set a password in Termux: passwd"
+echo "6. Run: ansible-playbook ansible/playbooks/99-complete-setup.yaml"
 
 exit $ERRORS
