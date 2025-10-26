@@ -8,7 +8,7 @@ termux_usr: /data/data/com.termux/files/usr
 termux_bin: /data/data/com.termux/files/usr/bin
 
 # Jenkins version
-jenkins_version: "2.479.1"  # LTS version
+jenkins_version: "2.528.1"  # LTS version
 jenkins_war_url: "https://get.jenkins.io/war-stable/{{ jenkins_version }}/jenkins.war"
 jenkins_war_path: "{{ termux_home }}/jenkins.war"
 
