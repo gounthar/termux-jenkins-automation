@@ -46,6 +46,7 @@ jenkins_wait_timeout: 300  # 5 minutes
 jenkins_wait_delay: 10  # Check every 10 seconds
 
 # Java configuration
-java_home: "{{ termux_usr }}/opt/openjdk"
-java_bin: "{{ java_home }}/bin/java"
+# Note: In Termux, Java is installed directly to bin/, not /opt/openjdk
+java_home: "{{ termux_usr }}"
+java_bin: "{{ termux_bin }}/java"
 openjdk_package_name: "openjdk-21"
