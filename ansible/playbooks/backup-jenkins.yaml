@@ -1,0 +1,60 @@
+---
+# Backup Jenkins Configuration
+# This playbook backs up Jenkins job definitions, JCasC config, and optionally build history
+
+- name: Backup Jenkins Configuration
+  hosts: termux_controller
+  gather_facts: true
+  become: false
+
+  vars:
+    # Backup destination (customize as needed)
+    backup_destination: "./backups/jenkins-{{ ansible_date_time.iso8601_basic_short }}"
+
+    # What to backup
+    backup_job_definitions: true
+    backup_jcasc_config: true
+    backup_plugins_list: true
+    backup_build_history: false  # Set to true if you need build logs (large!)
+
+    # Archive options
+    create_tarball: true
+    keep_uncompressed: false
+
+  pre_tasks:
+    - name: Display backup information
+      ansible.builtin.debug:
+        msg:
+          - "╔════════════════════════════════════════════════════════╗"
+          - "║   Jenkins Backup Playbook                              ║"
+          - "╚════════════════════════════════════════════════════════╝"
+          - ""
+          - "This playbook will backup:"
+          - "  - Job definitions (config.xml files)"
+          - "  - JCasC configuration"
+          - "  - Installed plugins list"
+          - "  {% if backup_build_history %}  - Build history and artifacts{% endif %}"
+          - ""
+          - "Backup will be saved to:"
+          - "  {{ backup_destination }}{{ '.tar.gz' if create_tarball else '' }}"
+          - ""
+
+  roles:
+    - role: jenkins-backup
+
+  post_tasks:
+    - name: Display next steps
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "Backup completed successfully!"
+          - ""
+          - "To restore on a fresh Jenkins installation:"
+          - "  1. Install Jenkins using playbooks/02-install-jenkins.yaml"
+          - "  2. Extract backup: tar -xzf {{ backup_destination }}.tar.gz"
+          - "  3. Copy job configs to $JENKINS_HOME/jobs/"
+          - "  4. Copy jenkins.yaml to $JENKINS_HOME/"
+          - "  5. Restart Jenkins"
+          - ""
+          - "For automated restore, see ansible/roles/jenkins-backup/README.md"
+          - ""

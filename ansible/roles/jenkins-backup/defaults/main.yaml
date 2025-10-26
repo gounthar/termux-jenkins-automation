@@ -1,0 +1,28 @@
+---
+# Default variables for jenkins-backup role
+# Backup Jenkins configuration, jobs, and optionally build history
+
+# Jenkins paths (Termux-specific)
+jenkins_home: /data/data/com.termux/files/home/.jenkins
+jenkins_port: 8080
+jenkins_url: "http://localhost:{{ jenkins_port }}"
+
+# Backup destination
+# Default: ./backups/jenkins-YYYYMMDD_HHMMSS
+backup_destination: "./backups/jenkins-{{ ansible_date_time.iso8601_basic_short }}"
+
+# What to backup
+backup_job_definitions: true    # Job config.xml files
+backup_jcasc_config: true       # JCasC configuration
+backup_plugins_list: true       # List of installed plugins
+backup_build_history: false     # Build logs and artifacts (large!)
+backup_credentials: false       # Credentials (security risk if not encrypted)
+
+# Jenkins credentials for API access (if needed)
+jenkins_admin_user: admin
+jenkins_admin_password: "{{ lookup('env', 'JENKINS_ADMIN_PASSWORD') | default('admin') }}"
+
+# Backup options
+create_tarball: true            # Create compressed backup archive
+tarball_compression: gz         # Valid values: gz, bz2, xz (matches Ansible archive module formats)
+keep_uncompressed: false        # Keep uncompressed files after tar

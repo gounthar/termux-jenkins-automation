@@ -85,11 +85,11 @@ ansible-playbook ansible/playbooks/99-complete-setup.yaml
 
 **On Termux:**
 - **Core packages**: OpenJDK 21, Jenkins LTS, SSH daemon
-- **Comprehensive package suite** (59+ packages via `termux-complete-setup` role):
+- **Comprehensive package suite** (60+ packages via `termux-complete-setup` role):
   - **Build Essentials** (15): clang, gcc-8*, cmake, make, autoconf, automake, libtool, etc.
   - **Programming Languages** (6): openjdk-21, python, golang, rust, perl, tcl
   - **Development Tools** (14): git, gh, maven, gnupg, curl, wget, dos2unix, etc.
-  - **Network Tools** (7): openssh, nmap, inetutils, iproute2, net-tools, lsof
+  - **Network Tools** (8): openssh, nmap, inetutils, iproute2, net-tools, lsof, rsync
   - **System Utilities** (10): htop, nano, termux-services, runit, procps, psmisc
   - **Archive Tools** (7): tar, gzip, bzip2, xz-utils, zip, unzip, zstd
 - **Additional Repositories**: Automatically configured (pointless, root) for extended package availability*
@@ -123,6 +123,38 @@ ansible-playbook ansible/playbooks/03-configure-agent.yaml
 # Phase 5: Apply JCasC configuration
 ansible-playbook ansible/playbooks/04-configure-jcasc.yaml
 ```
+
+## 💾 Backup & Restore
+
+Backup your Jenkins configuration before wiping devices or testing new setups:
+
+```bash
+# Backup Jenkins configuration
+ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/backup-jenkins.yaml
+```
+
+**What gets backed up:**
+- ✅ **Job definitions** (all config.xml files)
+- ✅ **Installed plugins** (95+ plugins with versions)
+- ✅ **JCasC configuration** (if modified in Jenkins UI)
+- ✅ **Metadata** (backup date, device info, Jenkins paths)
+
+**Backup location:** `ansible/playbooks/backups/jenkins-<timestamp>.tar.gz`
+
+**Customization:**
+```bash
+# Include build history (can be large)
+ansible-playbook -i ansible/inventory/hosts.yaml \
+  ansible/playbooks/backup-jenkins.yaml \
+  -e backup_build_history=true
+```
+
+**Restore:**
+1. Extract backup: `tar -xzf backups/jenkins-<timestamp>.tar.gz`
+2. Copy job configs to `$JENKINS_HOME/jobs/`
+3. Restart Jenkins
+
+See `ansible/roles/jenkins-backup/README.md` for detailed documentation.
 
 ## 🎁 Demo Jobs Included
 

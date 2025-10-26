@@ -1,0 +1,134 @@
+---
+# Main tasks for jenkins-backup role
+# Backup Jenkins configuration, jobs, and optionally build history
+
+- name: Display backup information
+  ansible.builtin.debug:
+    msg:
+      - "╔════════════════════════════════════════════════════════╗"
+      - "║   Jenkins Backup Starting                              ║"
+      - "╚════════════════════════════════════════════════════════╝"
+      - ""
+      - "Jenkins Home: {{ jenkins_home }}"
+      - "Backup Destination: {{ backup_destination }}"
+      - "Backup Job Definitions: {{ backup_job_definitions }}"
+      - "Backup JCasC Config: {{ backup_jcasc_config }}"
+      - "Backup Plugins List: {{ backup_plugins_list }}"
+      - "Backup Build History: {{ backup_build_history }}"
+      - ""
+
+- name: Check if Jenkins home directory exists
+  ansible.builtin.stat:
+    path: "{{ jenkins_home }}"
+  register: jenkins_home_dir
+
+- name: Fail if Jenkins home does not exist
+  ansible.builtin.fail:
+    msg: "Jenkins home directory does not exist: {{ jenkins_home }}"
+  when: not jenkins_home_dir.stat.exists
+
+- name: Create backup destination directory
+  ansible.builtin.file:
+    path: "{{ backup_destination }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  become: false
+
+- name: Export job definitions
+  ansible.builtin.import_tasks: export-jobs.yaml
+  when: backup_job_definitions | bool
+
+- name: Backup JCasC configuration
+  ansible.builtin.import_tasks: backup-jcasc.yaml
+  when: backup_jcasc_config | bool
+
+- name: Backup plugins list
+  ansible.builtin.shell: |
+    if [ -d "{{ jenkins_home }}/plugins" ]; then
+      ls -1 {{ jenkins_home }}/plugins/*.jpi {{ jenkins_home }}/plugins/*.hpi 2>/dev/null | xargs -n1 basename | sed 's/\.[^.]*$//' | sort
+    fi
+  register: plugins_list
+  changed_when: false
+  failed_when: false
+  when: backup_plugins_list | bool
+
+- name: Save plugins list to file
+  ansible.builtin.copy:
+    content: |
+      # Jenkins Plugins Backup
+      # Backup Date: {{ ansible_date_time.iso8601 }}
+      # Jenkins Home: {{ jenkins_home }}
+
+      {% if plugins_list.stdout_lines is defined %}
+      {% for plugin in plugins_list.stdout_lines %}
+      {{ plugin }}
+      {% endfor %}
+      {% endif %}
+    dest: "{{ backup_destination }}/plugins.txt"
+  delegate_to: localhost
+  become: false
+  when:
+    - backup_plugins_list | bool
+    - plugins_list.stdout_lines is defined
+    - plugins_list.stdout_lines | length > 0
+
+- name: Create backup metadata file
+  ansible.builtin.copy:
+    content: |
+      # Jenkins Backup Metadata
+      Backup Date: {{ ansible_date_time.iso8601 }}
+      Jenkins Home: {{ jenkins_home }}
+      Jenkins URL: {{ jenkins_url }}
+      Backup Destination: {{ backup_destination }}
+
+      Backed Up:
+      - Job Definitions: {{ backup_job_definitions }}
+      - JCasC Configuration: {{ backup_jcasc_config }}
+      - Plugins List: {{ backup_plugins_list }}
+      - Build History: {{ backup_build_history }}
+
+      Device Information:
+      - Hostname: {{ ansible_hostname }}
+      - OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
+      - Architecture: {{ ansible_architecture }}
+    dest: "{{ backup_destination }}/BACKUP_INFO.txt"
+  delegate_to: localhost
+  become: false
+
+- name: Create tarball if requested
+  ansible.builtin.archive:
+    path: "{{ backup_destination }}"
+    dest: "{{ backup_destination }}.tar.{{ tarball_compression }}"
+    format: "{{ tarball_compression }}"
+  delegate_to: localhost
+  become: false
+  when: create_tarball | bool
+
+- name: Remove uncompressed backup if tarball created
+  ansible.builtin.file:
+    path: "{{ backup_destination }}"
+    state: absent
+  delegate_to: localhost
+  become: false
+  when:
+    - create_tarball | bool
+    - not keep_uncompressed | bool
+
+- name: Display backup completion summary
+  ansible.builtin.debug:
+    msg:
+      - ""
+      - "╔════════════════════════════════════════════════════════╗"
+      - "║   Jenkins Backup Complete!                             ║"
+      - "╚════════════════════════════════════════════════════════╝"
+      - ""
+      - "Backup Location:"
+      - "  {{ backup_destination }}{{ '.tar.' + tarball_compression if create_tarball else '' }}"
+      - ""
+      - "To restore this backup:"
+      - "  1. Copy files to new Jenkins instance"
+      - "  2. Place config.xml files in $JENKINS_HOME/jobs/<job-name>/"
+      - "  3. Place jenkins.yaml in $JENKINS_HOME/ or use JCasC"
+      - "  4. Restart Jenkins"
+      - ""

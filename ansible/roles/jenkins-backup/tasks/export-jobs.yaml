@@ -1,0 +1,98 @@
+---
+# Export Jenkins job definitions
+
+- name: Check if Jenkins jobs directory exists
+  ansible.builtin.stat:
+    path: "{{ jenkins_home }}/jobs"
+  register: jobs_dir
+
+- name: Check if rsync is available on target
+  ansible.builtin.command: which rsync
+  register: rsync_check
+  changed_when: false
+  failed_when: false
+  when: jobs_dir.stat.exists
+
+- name: Synchronize job configurations using rsync
+  ansible.posix.synchronize:
+    src: "{{ jenkins_home }}/jobs/"
+    dest: "{{ backup_destination }}/jobs/"
+    mode: pull
+    rsync_opts:
+      - "--include=*/"
+      - "--include=config.xml"
+      - "--exclude=*"
+  when:
+    - jobs_dir.stat.exists
+    - rsync_check.rc == 0
+  delegate_to: localhost
+  become: false
+
+- name: Find all job config.xml files (fallback when rsync unavailable)
+  ansible.builtin.find:
+    paths: "{{ jenkins_home }}/jobs"
+    patterns: "config.xml"
+    recurse: yes
+  register: job_configs
+  when:
+    - jobs_dir.stat.exists
+    - rsync_check.rc != 0
+
+- name: Create backup jobs directory (fallback)
+  ansible.builtin.file:
+    path: "{{ backup_destination }}/jobs"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  become: false
+  when:
+    - jobs_dir.stat.exists
+    - rsync_check.rc != 0
+    - job_configs.files | length > 0
+
+- name: Fetch job configuration files (fallback when rsync unavailable)
+  ansible.builtin.fetch:
+    src: "{{ item.path }}"
+    dest: "{{ backup_destination }}/jobs/{{ item.path | regex_replace('^' + jenkins_home + '/jobs/', '') }}"
+    flat: yes
+  loop: "{{ job_configs.files }}"
+  when:
+    - jobs_dir.stat.exists
+    - rsync_check.rc != 0
+    - job_configs.files | length > 0
+
+- name: Count backed up jobs
+  ansible.builtin.shell: |
+    cd "{{ jenkins_home }}/jobs" && find . -name config.xml -exec dirname {} \; | sed 's|^\./||' | sort
+  register: job_list
+  changed_when: false
+  when: jobs_dir.stat.exists
+
+- name: Save job list to file
+  ansible.builtin.copy:
+    content: |
+      # Jenkins Jobs Backup
+      # Backup Date: {{ ansible_date_time.iso8601 }}
+      # Jenkins Home: {{ jenkins_home }}
+      # Total Jobs: {{ job_list.stdout_lines | default([]) | length }}
+
+      {% if job_list.stdout_lines is defined %}
+      {% for job in job_list.stdout_lines %}
+      - {{ job }}
+      {% endfor %}
+      {% endif %}
+    dest: "{{ backup_destination }}/jobs/JOB_LIST.txt"
+  delegate_to: localhost
+  become: false
+  when:
+    - jobs_dir.stat.exists
+    - job_list.stdout_lines is defined
+    - job_list.stdout_lines | length > 0
+
+- name: Display backup summary for jobs
+  ansible.builtin.debug:
+    msg:
+      - "Job definitions backed up successfully"
+      - "Location: {{ backup_destination }}/jobs/"
+      - "Jobs backed up: {{ job_list.stdout_lines | default([]) | length }}"
+  when: jobs_dir.stat.exists

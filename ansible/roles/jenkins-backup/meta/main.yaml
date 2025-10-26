@@ -1,0 +1,23 @@
+---
+galaxy_info:
+  role_name: jenkins-backup
+  author: CloudNord Jenkins Automation Project
+  description: Backup Jenkins configuration, jobs, and optionally build history
+  license: Apache-2.0
+
+  min_ansible_version: "2.10"
+
+  platforms:
+    - name: Android
+      versions:
+        - all
+
+  galaxy_tags:
+    - jenkins
+    - backup
+    - ci
+    - cd
+    - termux
+    - devops
+
+dependencies: []

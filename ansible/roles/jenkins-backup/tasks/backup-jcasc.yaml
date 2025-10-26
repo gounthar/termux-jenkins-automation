@@ -1,0 +1,55 @@
+---
+# Backup Jenkins Configuration as Code (JCasC)
+
+- name: Check if JCasC file exists in Jenkins home
+  ansible.builtin.stat:
+    path: "{{ jenkins_home }}/jenkins.yaml"
+  register: jcasc_file
+
+- name: Fetch JCasC configuration from Jenkins home
+  ansible.builtin.fetch:
+    src: "{{ jenkins_home }}/jenkins.yaml"
+    dest: "{{ backup_destination }}/jenkins.yaml"
+    flat: yes
+  when: jcasc_file.stat.exists
+
+- name: Try to export JCasC via API
+  ansible.builtin.uri:
+    url: "{{ jenkins_url }}/configuration-as-code/export"
+    method: GET
+    user: "{{ jenkins_admin_user }}"
+    password: "{{ jenkins_admin_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    status_code: [200, 401, 403, 404]
+  register: jcasc_api_export
+  failed_when: false
+  when: not jcasc_file.stat.exists
+
+- name: Save JCasC from API export
+  ansible.builtin.copy:
+    content: "{{ jcasc_api_export.content }}"
+    dest: "{{ backup_destination }}/jenkins.yaml"
+  delegate_to: localhost
+  become: false
+  when:
+    - not jcasc_file.stat.exists
+    - jcasc_api_export.status == 200
+
+- name: Display JCasC backup status
+  ansible.builtin.debug:
+    msg:
+      - "JCasC configuration backed up"
+      - "Source: {{ 'Jenkins home' if jcasc_file.stat.exists else 'API export' }}"
+      - "Location: {{ backup_destination }}/jenkins.yaml"
+  when: jcasc_file.stat.exists or (jcasc_api_export.status == 200)
+
+- name: Warn if JCasC backup failed
+  ansible.builtin.debug:
+    msg:
+      - "WARNING: Could not backup JCasC configuration"
+      - "Jenkins home file not found and API export failed"
+      - "You may need to manually backup jcasc/jenkins.yaml from your repository"
+  when:
+    - not jcasc_file.stat.exists
+    - jcasc_api_export.status | default(0) != 200
