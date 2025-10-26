@@ -112,6 +112,6 @@
     msg:
       - ""
       - "╔════════════════════════════════════════════════════════╗"
-      - "║   Boot Configuration {{ 'Complete' if boot_dir_check.stat.exists else 'Skipped' | center(33) }} ║"
+      - "║   Boot Configuration {{ ('Complete' if boot_dir_check.stat.exists else 'Skipped') | center(36) }} ║"
       - "╚════════════════════════════════════════════════════════╝"
       - ""
