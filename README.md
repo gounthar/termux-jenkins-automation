@@ -42,7 +42,34 @@ This repository provides a turnkey Ansible-based automation that:
 
 ### Installation
 
+**Step 1: Prepare Termux on your Android device**
+
+⚠️ **CRITICAL**: Complete these steps ON YOUR ANDROID DEVICE in Termux before running Ansible:
+
 ```bash
+# In Termux on your Android phone:
+
+# 1. Update packages
+pkg update && pkg upgrade
+
+# 2. Install OpenSSH
+pkg install openssh
+
+# 3. Start SSH daemon
+sshd
+
+# 4. Set a password (Ansible needs this to connect)
+passwd
+
+# 5. Note your IP address (you'll need it for Ansible)
+ifconfig wlan0
+```
+
+**Step 2: Run Ansible automation from your laptop/PC**
+
+```bash
+# On your laptop/PC:
+
 # 1. Clone this repository
 git clone https://github.com/gounthar/termux-jenkins-automation.git
 cd termux-jenkins-automation
@@ -50,10 +77,13 @@ cd termux-jenkins-automation
 # 2. Check prerequisites
 ./scripts/check-requirements.sh
 
-# 3. Run complete setup (interactive)
+# 3. Update inventory with your phone's IP address
+# Edit ansible/inventory/hosts.yaml and replace 192.168.1.50 with your phone's IP
+
+# 4. Run complete setup (interactive)
 ansible-playbook ansible/playbooks/99-complete-setup.yaml
 
-# 4. Access Jenkins
+# 5. Access Jenkins
 # On phone: http://localhost:8080
 # From laptop: http://<phone-ip>:8080
 # Login: admin / <password-from-setup>
