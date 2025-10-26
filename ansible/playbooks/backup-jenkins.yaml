@@ -40,7 +40,7 @@
           - ""
 
   roles:
-    - role: ../roles/jenkins-backup
+    - role: jenkins-backup
 
   post_tasks:
     - name: Display next steps

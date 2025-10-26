@@ -20,9 +20,9 @@ backup_credentials: false       # Credentials (security risk if not encrypted)
 
 # Jenkins credentials for API access (if needed)
 jenkins_admin_user: admin
-jenkins_admin_password: "{{ lookup('env', 'JENKINS_ADMIN_PASSWORD') | default('admin', true) }}"
+jenkins_admin_password: "{{ lookup('env', 'JENKINS_ADMIN_PASSWORD') | default('admin') }}"
 
 # Backup options
 create_tarball: true            # Create compressed backup archive
-tarball_compression: gzip       # gzip, bzip2, xz
+tarball_compression: gz         # gz, bz2, xz
 keep_uncompressed: false        # Keep uncompressed files after tar

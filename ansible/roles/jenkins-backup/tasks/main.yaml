@@ -99,8 +99,8 @@
 - name: Create tarball if requested
   ansible.builtin.archive:
     path: "{{ backup_destination }}"
-    dest: "{{ backup_destination }}.tar.gz"
-    format: gz
+    dest: "{{ backup_destination }}.tar.{{ tarball_compression }}"
+    format: "{{ tarball_compression }}"
   delegate_to: localhost
   become: false
   when: create_tarball | bool
@@ -124,7 +124,7 @@
       - "╚════════════════════════════════════════════════════════╝"
       - ""
       - "Backup Location:"
-      - "  {{ backup_destination }}{{ '.tar.gz' if create_tarball else '' }}"
+      - "  {{ backup_destination }}{{ '.tar.' + tarball_compression if create_tarball else '' }}"
       - ""
       - "To restore this backup:"
       - "  1. Copy files to new Jenkins instance"

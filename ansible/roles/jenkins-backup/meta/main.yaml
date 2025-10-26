@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: jenkins_backup
+  role_name: jenkins-backup
   author: CloudNord Jenkins Automation Project
   description: Backup Jenkins configuration, jobs, and optionally build history
   license: Apache-2.0

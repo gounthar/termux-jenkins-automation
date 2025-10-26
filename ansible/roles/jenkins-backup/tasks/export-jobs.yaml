@@ -6,41 +6,29 @@
     path: "{{ jenkins_home }}/jobs"
   register: jobs_dir
 
-- name: Find all job config.xml files
-  ansible.builtin.find:
-    paths: "{{ jenkins_home }}/jobs"
-    patterns: "config.xml"
-    recurse: yes
-  register: job_configs
+- name: Check if rsync is available on target
+  ansible.builtin.command: which rsync
+  register: rsync_check
+  changed_when: false
+  failed_when: false
   when: jobs_dir.stat.exists
 
-- name: Display number of jobs found
-  ansible.builtin.debug:
-    msg: "Found {{ job_configs.matched | default(0) }} job configuration(s)"
-  when: jobs_dir.stat.exists
-
-- name: Create backup jobs directory
-  ansible.builtin.file:
-    path: "{{ backup_destination }}/jobs"
-    state: directory
-    mode: '0755'
+- name: Synchronize job configurations using rsync
+  ansible.posix.synchronize:
+    src: "{{ jenkins_home }}/jobs/"
+    dest: "{{ backup_destination }}/jobs/"
+    mode: pull
+    rsync_opts:
+      - "--include=*/"
+      - "--include=config.xml"
+      - "--exclude=*"
+  when:
+    - jobs_dir.stat.exists
+    - rsync_check.rc == 0
   delegate_to: localhost
   become: false
-  when:
-    - jobs_dir.stat.exists
-    - job_configs.matched | default(0) > 0
 
-- name: Fetch job configuration files
-  ansible.builtin.fetch:
-    src: "{{ item.path }}"
-    dest: "{{ backup_destination }}/jobs/"
-    flat: false
-  loop: "{{ job_configs.files }}"
-  when:
-    - jobs_dir.stat.exists
-    - job_configs.matched | default(0) > 0
-
-- name: Create job list summary
+- name: Count backed up jobs
   ansible.builtin.shell: |
     cd "{{ jenkins_home }}/jobs" && find . -name config.xml -exec dirname {} \; | sed 's|^\./||' | sort
   register: job_list
@@ -53,7 +41,7 @@
       # Jenkins Jobs Backup
       # Backup Date: {{ ansible_date_time.iso8601 }}
       # Jenkins Home: {{ jenkins_home }}
-      # Total Jobs: {{ job_configs.matched | default(0) }}
+      # Total Jobs: {{ job_list.stdout_lines | default([]) | length }}
 
       {% if job_list.stdout_lines is defined %}
       {% for job in job_list.stdout_lines %}
@@ -65,12 +53,13 @@
   become: false
   when:
     - jobs_dir.stat.exists
-    - job_configs.matched | default(0) > 0
+    - job_list.stdout_lines is defined
+    - job_list.stdout_lines | length > 0
 
 - name: Display backup summary for jobs
   ansible.builtin.debug:
     msg:
       - "Job definitions backed up successfully"
       - "Location: {{ backup_destination }}/jobs/"
-      - "Jobs backed up: {{ job_configs.matched | default(0) }}"
+      - "Jobs backed up: {{ job_list.stdout_lines | default([]) | length }}"
   when: jobs_dir.stat.exists
