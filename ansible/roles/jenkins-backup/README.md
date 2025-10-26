@@ -43,7 +43,7 @@ backup_credentials: false      # Credentials (security risk if not encrypted)
 
 ```yaml
 create_tarball: true           # Create compressed backup archive
-tarball_compression: gzip      # gzip, bzip2, or xz
+tarball_compression: gz         # gz, bz2, or xz
 keep_uncompressed: false       # Keep uncompressed files after creating tarball
 ```
 
@@ -51,7 +51,7 @@ keep_uncompressed: false       # Keep uncompressed files after creating tarball
 
 ```yaml
 jenkins_admin_user: admin
-jenkins_admin_password: "{{ lookup('env', 'JENKINS_ADMIN_PASSWORD') | default('admin', true) }}"
+jenkins_admin_password: "{{ lookup('env', 'JENKINS_ADMIN_PASSWORD') | default('admin') }}"
 ```
 
 ## Dependencies

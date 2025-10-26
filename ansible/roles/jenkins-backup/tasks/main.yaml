@@ -46,7 +46,7 @@
 - name: Backup plugins list
   ansible.builtin.shell: |
     if [ -d "{{ jenkins_home }}/plugins" ]; then
-      ls -1 {{ jenkins_home }}/plugins/*.jpi {{ jenkins_home}}/plugins/*.hpi 2>/dev/null | xargs -n1 basename | sed 's/\.[^.]*$//' | sort
+      ls -1 {{ jenkins_home }}/plugins/*.jpi {{ jenkins_home }}/plugins/*.hpi 2>/dev/null | xargs -n1 basename | sed 's/\.[^.]*$//' | sort
     fi
   register: plugins_list
   changed_when: false
