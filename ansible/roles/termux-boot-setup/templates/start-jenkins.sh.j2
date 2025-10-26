@@ -7,6 +7,9 @@
 # Location: {{ boot_script_path }}
 # Managed by: termux-boot-setup Ansible role
 
+# Termux prefix
+PREFIX=/data/data/com.termux/files/usr
+
 # Logging
 LOG_FILE="{{ termux_home }}/.termux/boot/start-jenkins.log"
 exec > "$LOG_FILE" 2>&1
@@ -38,7 +41,7 @@ echo "[$(date +%T)] Network wait complete"
 echo "[$(date +%T)] Starting services..."
 {% for service in boot_services %}
 echo "[$(date +%T)] Starting {{ service }}..."
-sv up {{ service }}
+sv up "$PREFIX/var/service/{{ service }}"
 if [ $? -eq 0 ]; then
     echo "[$(date +%T)] ✓ {{ service }} started"
 else
