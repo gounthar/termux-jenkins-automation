@@ -1,6 +1,12 @@
 ---
 # Default variables for jenkins-controller role
 
+# Termux paths
+termux_prefix: /data/data/com.termux/files
+termux_home: /data/data/com.termux/files/home
+termux_usr: /data/data/com.termux/files/usr
+termux_bin: /data/data/com.termux/files/usr/bin
+
 # Jenkins version
 jenkins_version: "2.479.1"  # LTS version
 jenkins_war_url: "https://get.jenkins.io/war-stable/{{ jenkins_version }}/jenkins.war"
