@@ -11,8 +11,10 @@ all:
         phone1:
           ansible_host: 192.168.1.53  # Update with your phone's IP
           ansible_port: 8022
-          ansible_user: termux
+          ansible_user: u0_a504  # Update with output from 'whoami'
           ansible_connection: ssh
+          ansible_ssh_private_key_file: ~/.ssh/termux_ed25519
+          ansible_ssh_common_args: '-o IdentitiesOnly=yes'
           ansible_python_interpreter: /data/data/com.termux/files/usr/bin/python
 
     termux_agents:
@@ -20,7 +22,7 @@ all:
         phone1:  # First phone is both controller and agent
           ansible_host: 192.168.1.53
           ansible_port: 8022
-          ansible_user: termux
+          ansible_user: u0_a504
 
       # Add more agents here:
       # phone2:

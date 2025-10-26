@@ -64,11 +64,29 @@ sshd
 # 4. Set a password (Ansible needs this to connect)
 passwd
 
-# 5. Note your IP address (you'll need it for Ansible)
-ifconfig wlan0
+# 5. Get your username and IP address (you'll need these for Ansible)
+whoami          # Note this username (e.g., u0_a504)
+ifconfig wlan0  # Note your IP address
 ```
 
-**Step 2: Run Ansible automation from your laptop/PC**
+**Step 2: Set up SSH key authentication**
+
+```bash
+# On your laptop/PC:
+
+# 1. Generate SSH key for Ansible automation
+ssh-keygen -t ed25519 -f ~/.ssh/termux_ed25519 -N ""
+
+# 2. Display the public key
+cat ~/.ssh/termux_ed25519.pub
+
+# Copy the output, then on your Termux device run:
+# mkdir -p ~/.ssh && chmod 700 ~/.ssh
+# echo 'YOUR_PUBLIC_KEY_HERE' >> ~/.ssh/authorized_keys
+# chmod 600 ~/.ssh/authorized_keys
+```
+
+**Step 3: Run Ansible automation from your laptop/PC**
 
 ```bash
 # On your laptop/PC:
@@ -80,10 +98,16 @@ cd termux-jenkins-automation
 # 2. Check prerequisites
 ./scripts/check-requirements.sh
 
-# 3. Update inventory with your phone's IP address
-# Edit ansible/inventory/hosts.yaml and replace 192.168.1.50 with your phone's IP
+# 3. Update inventory with your phone's details
+# Edit ansible/inventory/hosts.yaml:
+#   - Replace ansible_host: 192.168.1.53 with your phone's IP
+#   - Replace ansible_user: u0_a504 with your username from whoami
 
-# 4. Run complete setup (interactive)
+# 4. Configure Ansible to use your SSH key
+# Edit ansible/inventory/hosts.yaml and add under phone1:
+#   ansible_ssh_private_key_file: ~/.ssh/termux_ed25519
+
+# 5. Run complete setup (interactive)
 ansible-playbook ansible/playbooks/99-complete-setup.yaml
 
 # 5. Access Jenkins
