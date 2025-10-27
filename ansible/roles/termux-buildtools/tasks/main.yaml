@@ -26,10 +26,8 @@
   register: dev_tools_result
   changed_when: "'Setting up' in dev_tools_result.stdout"
 
-- name: Upgrade pip to latest version
-  ansible.builtin.command: "{{ termux_bin }}/pip install --upgrade pip"
-  when: install_python_packages | bool
-  changed_when: true
+# Note: Termux does not allow upgrading pip via pip itself as it breaks the python-pip package
+# Use 'pkg upgrade python-pip' instead if needed
 
 - name: Install Python packages
   ansible.builtin.command: "{{ termux_bin }}/pip install {{ item }}"
