@@ -26,9 +26,6 @@ sources:
     kind: file
     spec:
       file: https://raw.githubusercontent.com/jenkins-docs/quickstart-tutorials/main/dockerfiles/plugins.txt
-    transformers:
-      - trimprefix: " "
-      - trimsuffix: " "
 
 targets:
   localPlugins:
@@ -39,9 +36,6 @@ targets:
     spec:
       file: jcasc/plugins.txt
       forcecreate: false
-    transformers:
-      - trimprefix: " "
-      - trimsuffix: " "
 
 actions:
   default:
