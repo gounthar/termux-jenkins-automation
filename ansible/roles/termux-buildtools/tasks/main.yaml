@@ -36,10 +36,9 @@
   register: pip_result
   changed_when: "'Successfully installed' in pip_result.stdout"
 
-- name: Update npm to latest version
-  ansible.builtin.command: "{{ termux_bin }}/npm install -g npm@latest"
-  when: install_node_packages | bool
-  changed_when: true
+# Note: Termux does not allow upgrading npm via npm itself as it breaks global packages
+# See: https://github.com/termux/termux-packages/issues/13293
+# Use 'pkg upgrade nodejs' instead if needed
 
 - name: Install Node.js global packages
   ansible.builtin.command: "{{ termux_bin }}/npm install -g {{ item }}"
