@@ -29,8 +29,8 @@ jenkins_cli_jar: "{{ jenkins_home }}/jenkins-cli.jar"
 jenkins_cli_url: "http://localhost:{{ jenkins_port }}/jnlpJars/jenkins-cli.jar"
 
 # Credentials
-jenkins_admin_user: "{{ jenkins_admin_user | default('admin') }}"
-jenkins_admin_password: "{{ jenkins_admin_password | default('admin') }}"
+jenkins_admin_user: "admin"
+jenkins_admin_password: "admin"
 
 # Agent configuration (from jenkins-agent role)
 agent_name: "{{ jenkins_agent_name | default('termux-agent-1') }}"
