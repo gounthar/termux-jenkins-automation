@@ -84,25 +84,7 @@ tool:
       - name: "Maven"
         home: "/data/data/com.termux/files/usr/share/maven"
 
-jobs:
-  - script: |
-      pipelineJob('hello-world') {
-        definition {
-          cps {
-            script("""
-              pipeline {
-                agent { label 'termux' }
-                stages {
-                  stage('Hello') {
-                    steps {
-                      sh 'echo "Hello from Android!"'
-                      sh 'uname -a'
-                      sh 'java -version'
-                    }
-                  }
-                }
-              }
-            """)
-          }
-        }
-      }
+# NOTE: Jobs are NOT managed via JCasC
+# Jobs should be created manually via Jenkins UI or CLI, then backed up using:
+#   ansible-playbook ansible/playbooks/backup-jenkins.yaml
+# To restore jobs on a new instance, extract job configs from backup tarball to ~/.jenkins/jobs/
