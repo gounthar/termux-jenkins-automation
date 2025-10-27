@@ -13,29 +13,31 @@
 
 all:
   children:
-    termux_controller:
-      hosts:
-        phone1: &phone1_config
-          ansible_host: 192.168.1.53  # Update with your phone's IP
-          ansible_port: 8022
-          ansible_user: u0_a504  # Update with output from 'whoami'
-          ansible_connection: ssh
-          ansible_ssh_private_key_file: ~/.ssh/termux_ed25519
-          ansible_ssh_common_args: '-o IdentitiesOnly=yes'
-          ansible_python_interpreter: /data/data/com.termux/files/usr/bin/python
-          ansible_remote_tmp: /data/data/com.termux/files/home/.ansible/tmp
+    termux:  # Parent group for all Termux hosts - inherits group_vars/termux.yaml
+      children:
+        termux_controller:
+          hosts:
+            phone1: &phone1_config
+              ansible_host: 192.168.1.53  # Update with your phone's IP
+              ansible_port: 8022
+              ansible_user: u0_a504  # Update with output from 'whoami'
+              ansible_connection: ssh
+              ansible_ssh_private_key_file: ~/.ssh/termux_ed25519
+              ansible_ssh_common_args: '-o IdentitiesOnly=yes'
+              ansible_python_interpreter: /data/data/com.termux/files/usr/bin/python
+              ansible_remote_tmp: /data/data/com.termux/files/home/.ansible/tmp
 
-    termux_agents:
-      hosts:
-        phone1:  # First phone is both controller and agent
-          <<: *phone1_config
+        termux_agents:
+          hosts:
+            phone1:  # First phone is both controller and agent
+              <<: *phone1_config
 
-      # Add more agents here:
-      # phone2:
-      #   ansible_host: 192.168.1.51
-      #   ansible_port: 8022
-      #   ansible_user: u0_a123  # Run 'whoami' on phone2 to get actual user
-      # phone3:
-      #   ansible_host: 192.168.1.52
-      #   ansible_port: 8022
-      #   ansible_user: u0_a456  # Run 'whoami' on phone3 to get actual user
+            # Add more agents here:
+            # phone2:
+            #   ansible_host: 192.168.1.51
+            #   ansible_port: 8022
+            #   ansible_user: u0_a123  # Run 'whoami' on phone2 to get actual user
+            # phone3:
+            #   ansible_host: 192.168.1.52
+            #   ansible_port: 8022
+            #   ansible_user: u0_a456  # Run 'whoami' on phone3 to get actual user
