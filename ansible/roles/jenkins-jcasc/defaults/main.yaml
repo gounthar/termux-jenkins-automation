@@ -1,18 +1,8 @@
 ---
 # Default variables for jenkins-jcasc role
-
-# Termux paths
-termux_prefix: /data/data/com.termux/files
-termux_home: /data/data/com.termux/files/home
-termux_usr: /data/data/com.termux/files/usr
-termux_bin: /data/data/com.termux/files/usr/bin
-
-# Jenkins paths
-jenkins_home: "{{ termux_home }}/.jenkins"
-jenkins_war: "{{ termux_home }}/jenkins.war"
-jenkins_port: 8080
-ssh_port: 8022  # Standard Termux SSH port
-java_bin: "{{ termux_bin }}/java"
+# Note: Termux path variables (termux_prefix, termux_home, termux_usr, termux_bin),
+# Jenkins paths (jenkins_home, jenkins_war, jenkins_port, java_bin), and ssh_port
+# are defined in group_vars/termux.yaml and inherited by all Termux hosts
 
 # JCasC configuration
 jcasc_config_source: "{{ playbook_dir }}/../../jcasc/jenkins.yaml"

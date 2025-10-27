@@ -61,9 +61,12 @@
 - name: Stop Jenkins to prepare for restart
   ansible.builtin.shell:
     cmd: pkill -f "java.*jenkins.war"
+  register: jenkins_stop
   when: plugin_install is changed
-  changed_when: true
-  failed_when: false
+  changed_when: jenkins_stop.rc == 0
+  failed_when: jenkins_stop.rc not in [0, 1]
+  # rc=0: process found and killed successfully
+  # rc=1: no matching process found (already stopped)
 
 - name: Wait for Jenkins to stop
   ansible.builtin.pause:
