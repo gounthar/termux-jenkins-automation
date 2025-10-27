@@ -18,14 +18,14 @@ This repository provides a turnkey Ansible-based automation that:
 
 **On your Android phone:**
 - **Termux** installed (required)
-  - Recommended: [F-Droid](https://f-droid.org/packages/com.termux/)
-  - Alternative: [GitHub Releases](https://github.com/termux/termux-app/releases)
+  - Recommended: [GitHub Releases](https://github.com/termux/termux-app/releases)
+  - Alternative: [F-Droid](https://f-droid.org/packages/com.termux/)
   - ⚠️ **Do NOT use Google Play Store version** (outdated and incompatible)
 - **Termux companion apps** (optional but recommended):
   - **Termux:API** - Enables Android device API access (battery, location, notifications, etc.)
-    - [F-Droid](https://f-droid.org/packages/com.termux.api/) | [GitHub](https://github.com/termux/termux-api/releases)
+    - [GitHub](https://github.com/termux/termux-api/releases) | [F-Droid](https://f-droid.org/packages/com.termux.api/)
   - **Termux:Boot** - Auto-start Jenkins on device boot (hands-free operation)
-    - [F-Droid](https://f-droid.org/packages/com.termux.boot/) | [GitHub](https://github.com/termux/termux-boot/releases)
+    - [GitHub](https://github.com/termux/termux-boot/releases) | [F-Droid](https://f-droid.org/packages/com.termux.boot/)
     - **Why needed**: Without Termux:Boot, Jenkins must be started manually after each reboot
     - **With Termux:Boot**: ✅ Jenkins starts automatically, ✅ Perfect for demos/production
     - **Configuration**: Automated via `termux-boot-setup` role (optional)
@@ -42,7 +42,55 @@ This repository provides a turnkey Ansible-based automation that:
 
 ### Installation
 
+**Step 1: Prepare Termux on your Android device**
+
+⚠️ **CRITICAL**: Complete these steps ON YOUR ANDROID DEVICE in Termux before running Ansible:
+
 ```bash
+# In Termux on your Android phone:
+
+# 1. Update packages
+pkg update && pkg upgrade
+
+# 2. Install OpenSSH and Python (required for Ansible)
+pkg install openssh python
+
+# Note: You may see a message about ssh-agent and termux-services
+# This is informational - termux-services will be installed automatically
+
+# 3. Start SSH daemon
+sshd
+
+# 4. Set a password (Ansible needs this to connect)
+passwd
+
+# 5. Get your username and IP address (you'll need these for Ansible)
+whoami          # Note this username (e.g., u0_a504)
+ifconfig wlan0  # Note your IP address
+```
+
+**Step 2: Set up SSH key authentication**
+
+```bash
+# On your laptop/PC:
+
+# 1. Generate SSH key for Ansible automation
+ssh-keygen -t ed25519 -f ~/.ssh/termux_ed25519 -N ""
+
+# 2. Display the public key
+cat ~/.ssh/termux_ed25519.pub
+
+# Copy the output, then on your Termux device run:
+# mkdir -p ~/.ssh && chmod 700 ~/.ssh
+# echo 'YOUR_PUBLIC_KEY_HERE' >> ~/.ssh/authorized_keys
+# chmod 600 ~/.ssh/authorized_keys
+```
+
+**Step 3: Run Ansible automation from your laptop/PC**
+
+```bash
+# On your laptop/PC:
+
 # 1. Clone this repository
 git clone https://github.com/gounthar/termux-jenkins-automation.git
 cd termux-jenkins-automation
@@ -50,10 +98,19 @@ cd termux-jenkins-automation
 # 2. Check prerequisites
 ./scripts/check-requirements.sh
 
-# 3. Run complete setup (interactive)
+# 3. Update inventory with your phone's details
+# Edit ansible/inventory/hosts.yaml:
+#   - Replace ansible_host: 192.168.1.53 with your phone's IP
+#   - Replace ansible_user: u0_a504 with your username from whoami
+
+# 4. Configure Ansible to use your SSH key
+# Edit ansible/inventory/hosts.yaml and add under phone1:
+#   ansible_ssh_private_key_file: ~/.ssh/termux_ed25519
+
+# 5. Run complete setup (interactive)
 ansible-playbook ansible/playbooks/99-complete-setup.yaml
 
-# 4. Access Jenkins
+# 6. Access Jenkins
 # On phone: http://localhost:8080
 # From laptop: http://<phone-ip>:8080
 # Login: admin / <password-from-setup>

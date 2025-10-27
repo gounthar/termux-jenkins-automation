@@ -7,6 +7,11 @@
   register: java_install_result
   changed_when: "'Setting up' in java_install_result.stdout"
 
+- name: Install font packages for Jenkins
+  ansible.builtin.command: "{{ termux_bin }}/pkg install -y fontconfig freetype ttf-dejavu"
+  register: font_install_result
+  changed_when: "'Setting up' in font_install_result.stdout"
+
 - name: Verify Java installation
   ansible.builtin.command: "{{ java_bin }} -version"
   register: java_version_check
@@ -41,19 +46,51 @@
   when: not jenkins_war_stat.stat.exists
   register: jenkins_download
 
-- name: Skip setup wizard by creating init script
+- name: Create UpgradeWizard state file to skip setup wizard
   ansible.builtin.copy:
-    dest: "{{ jenkins_home }}/init.groovy.d/skip-wizard.groovy"
-    content: |
-      import jenkins.model.Jenkins
-      import jenkins.install.InstallState
-
-      def instance = Jenkins.getInstance()
-      if (!instance.installState.isSetupComplete()) {
-        instance.setInstallState(InstallState.INITIAL_SETUP_COMPLETED)
-      }
+    dest: "{{ jenkins_home }}/jenkins.install.UpgradeWizard.state"
+    content: "{{ jenkins_version }}"
     mode: "0644"
   when: skip_setup_wizard | bool
+
+- name: Create InstallUtil state file to mark installation complete
+  ansible.builtin.copy:
+    dest: "{{ jenkins_home }}/jenkins.install.InstallUtil.lastExecVersion"
+    content: "{{ jenkins_version }}"
+    mode: "0644"
+  when: skip_setup_wizard | bool
+
+- name: Create admin user with known password for automation
+  ansible.builtin.copy:
+    dest: "{{ jenkins_home }}/init.groovy.d/create-admin.groovy"
+    content: |
+      import jenkins.model.Jenkins
+      import hudson.security.HudsonPrivateSecurityRealm
+      import hudson.security.FullControlOnceLoggedInAuthorizationStrategy
+
+      def instance = Jenkins.getInstance()
+
+      // Create security realm if not exists
+      def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+
+      // Create admin user with known password
+      def adminUsername = "{{ jenkins_admin_user }}"
+      def adminPassword = "{{ jenkins_admin_password }}"
+
+      // Only create if user doesn't exist
+      if (hudsonRealm.getUser(adminUsername) == null) {
+        hudsonRealm.createAccount(adminUsername, adminPassword)
+        instance.setSecurityRealm(hudsonRealm)
+
+        // Set authorization strategy
+        def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+        strategy.setAllowAnonymousRead(false)
+        instance.setAuthorizationStrategy(strategy)
+
+        instance.save()
+        println("Admin user created: ${adminUsername}")
+      }
+    mode: "0644"
 
 - name: Create Jenkins startup script
   ansible.builtin.template:
@@ -61,17 +98,24 @@
     dest: "{{ jenkins_service_script }}"
     mode: "0755"
 
+- name: Create Jenkins service directory for termux-services
+  ansible.builtin.file:
+    path: "{{ termux_usr }}/var/service/{{ jenkins_service_name }}"
+    state: directory
+    mode: "0755"
+  when: jenkins_service_enabled | bool
+
 - name: Create Jenkins service script for termux-services
   ansible.builtin.template:
     src: jenkins-service.sh.j2
-    dest: "{{ termux_prefix }}/var/service/{{ jenkins_service_name }}/run"
+    dest: "{{ termux_usr }}/var/service/{{ jenkins_service_name }}/run"
     mode: "0755"
   when: jenkins_service_enabled | bool
 
 - name: Enable Jenkins service
   ansible.builtin.command: sv-enable {{ jenkins_service_name }}
   args:
-    creates: "{{ termux_prefix }}/var/service/{{ jenkins_service_name }}"
+    creates: "{{ termux_usr }}/var/service/{{ jenkins_service_name }}"
   when: jenkins_service_enabled | bool
 
 - name: Start Jenkins

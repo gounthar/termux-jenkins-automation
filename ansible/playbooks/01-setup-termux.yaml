@@ -30,7 +30,7 @@
       ansible.builtin.debug:
         msg:
           - "✅ Termux base setup complete!"
-          - "SSH daemon is running on port {{ ssh_port }}"
+          - "SSH daemon is running on port {{ ansible_port }}"
           - "You can now proceed to install build tools and Jenkins"
           - ""
           - "Next step: ansible-playbook ansible/playbooks/02-install-jenkins.yaml"
