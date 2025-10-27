@@ -33,11 +33,18 @@
     src: "{{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }}.pub"
   register: agent_public_key
 
+- name: Ensure .ssh directory exists in Termux home
+  ansible.builtin.file:
+    path: "{{ termux_home }}/.ssh"
+    state: directory
+    mode: "0700"
+
 - name: Add agent public key to authorized_keys for localhost SSH
-  ansible.builtin.authorized_key:
-    user: "{{ jenkins_agent_user }}"
-    key: "{{ agent_public_key.content | b64decode }}"
-    state: present
+  ansible.builtin.lineinfile:
+    path: "{{ termux_home }}/.ssh/authorized_keys"
+    line: "{{ agent_public_key.content | b64decode | trim }}"
+    create: true
+    mode: "0600"
 
 - name: Configure agent environment variables
   ansible.builtin.lineinfile:
