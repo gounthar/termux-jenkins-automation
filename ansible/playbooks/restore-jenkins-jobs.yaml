@@ -1,0 +1,64 @@
+---
+- name: Restore Jenkins jobs from latest backup
+  hosts: termux_controller
+  gather_facts: false
+
+  vars:
+    backup_dir: "{{ playbook_dir }}/backups"
+    jenkins_home: "/data/data/com.termux/files/home/.jenkins"
+
+  tasks:
+    - name: Find latest backup file
+      find:
+        paths: "{{ backup_dir }}"
+        patterns: "jenkins-*.tar.gz"
+        file_type: file
+      delegate_to: localhost
+      register: backup_files
+
+    - name: Skip restoration if no backups found
+      debug:
+        msg:
+          - "No backup files found in {{ backup_dir }}"
+          - "Skipping job restoration (this is normal for first-time installations)"
+      when: backup_files.files | length == 0
+
+    - name: End play if no backups
+      meta: end_play
+      when: backup_files.files | length == 0
+
+    - name: Set latest backup path
+      set_fact:
+        latest_backup: "{{ backup_files.files | sort(attribute='mtime') | last }}"
+
+    - name: Display backup being restored
+      debug:
+        msg: "Restoring jobs from: {{ latest_backup.path }}"
+
+    - name: Extract jobs directory from backup to temp location
+      unarchive:
+        src: "{{ latest_backup.path }}"
+        dest: "{{ jenkins_home }}"
+        extra_opts:
+          - --wildcards
+          - "*/jobs/*"
+          - --transform
+          - "s|^[^/]*/||"
+
+    - name: Reload Jenkins configuration
+      uri:
+        url: "http://localhost:8080/reload"
+        method: POST
+        user: admin
+        password: admin
+        force_basic_auth: yes
+        status_code: 200,302
+      register: reload_result
+      failed_when: false
+
+    - name: Display restoration summary
+      debug:
+        msg:
+          - "Jobs restoration completed!"
+          - "Backup: {{ latest_backup.path | basename }}"
+          - "Jenkins reload: {{ 'Success' if reload_result.status == 200 or reload_result.status == 302 else 'Failed (manual reload may be needed)' }}"
