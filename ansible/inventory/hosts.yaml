@@ -1,6 +1,13 @@
 ---
 # Ansible inventory for Termux Jenkins setup
 #
+# IMPORTANT: Before running playbooks, update ansible_user with your device's user:
+#   1. SSH into your Termux device: ssh -p 8022 <ip-address>
+#   2. Run: whoami
+#   3. Copy the output (e.g., "u0_a504") and set it as ansible_user below
+#
+# Note: Termux uses Android user IDs (format: u0_aN), NOT "termux"
+#
 # Usage:
 #   ansible-playbook -i ansible/inventory/hosts.yaml playbook.yaml
 
@@ -27,8 +34,8 @@ all:
       # phone2:
       #   ansible_host: 192.168.1.51
       #   ansible_port: 8022
-      #   ansible_user: termux
+      #   ansible_user: u0_a123  # Run 'whoami' on phone2 to get actual user
       # phone3:
       #   ansible_host: 192.168.1.52
       #   ansible_port: 8022
-      #   ansible_user: termux
+      #   ansible_user: u0_a456  # Run 'whoami' on phone3 to get actual user
