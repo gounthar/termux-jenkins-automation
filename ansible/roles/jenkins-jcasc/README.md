@@ -46,10 +46,10 @@ To restore jobs on a new Jenkins instance:
 ```bash
 # Extract job configs from backup tarball
 tar -xzf ansible/playbooks/backups/jenkins-TIMESTAMP.tar.gz \
-    --strip-components=1 -C ~/.jenkins/jobs/ jenkins-TIMESTAMP/jobs/
+    --strip-components=2 -C ~/.jenkins/jobs/ jenkins-TIMESTAMP/jobs/
 
 # Reload Jenkins configuration
-curl -X POST http://localhost:8080/reload
+curl -u admin:<password> -X POST http://localhost:8080/reload
 ```
 
 Or use the `jenkins-backup` role's restore functionality (if implemented).
@@ -87,7 +87,7 @@ Requires:
 - The JCasC configuration is deployed to `~/.jenkins/jenkins.yaml`
 - Environment variable `CASC_JENKINS_CONFIG` must point to this file
 - Configuration is applied on Jenkins startup
-- To reload configuration without restart: `curl -X POST http://localhost:8080/reload`
+- To reload configuration without restart: `curl -u admin:<password> -X POST http://localhost:8080/reload`
 - **Plugin installation requires manual Jenkins restart on Termux** (no libc support for safe-restart)
 
 ## Troubleshooting
@@ -99,7 +99,7 @@ Requires:
 
 **Agent not connecting:**
 - Verify SSH key exists: `~/.jenkins/ssh/id_ed25519`
-- Test SSH connection: `ssh -i ~/.jenkins/ssh/id_ed25519 -p 8022 u0_a504@localhost`
+- Test SSH connection: `ssh -i ~/.jenkins/ssh/id_ed25519 -p 8022 $(whoami)@localhost`
 - Check agent is online in Jenkins UI: Manage Jenkins > Nodes
 
 **Jobs missing after applying JCasC:**
