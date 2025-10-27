@@ -1,0 +1,38 @@
+name: updatecli
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run once per week on Monday at 2am UTC
+    - cron: '0 2 * * 1'
+  push:
+    branches:
+      - main
+    paths:
+      - 'updatecli/**'
+      - '.github/workflows/updatecli.yaml'
+  pull_request:
+    paths:
+      - 'updatecli/**'
+      - '.github/workflows/updatecli.yaml'
+
+jobs:
+  updatecli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Updatecli in the runner
+        uses: updatecli/updatecli-action@v2.93.0
+
+      - name: Run Updatecli in Dry Run mode
+        run: updatecli diff --config ./updatecli/updatecli.d --values ./updatecli/values.yaml
+        env:
+          UPDATECLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Updatecli in Apply mode
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: updatecli apply --config ./updatecli/updatecli.d --values ./updatecli/values.yaml
+        env:
+          UPDATECLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
