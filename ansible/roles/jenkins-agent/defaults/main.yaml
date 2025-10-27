@@ -21,6 +21,7 @@ jenkins_agent_executors: 2
 jenkins_agent_ssh_key_path: "{{ jenkins_home }}/ssh"
 jenkins_agent_ssh_key_type: "ed25519"
 jenkins_agent_ssh_key_name: "id_ed25519"
+ssh_port: 8022  # Standard Termux SSH port
 
 # Resource limits
 jenkins_agent_memory_limit: "1024m"  # Max memory for builds
