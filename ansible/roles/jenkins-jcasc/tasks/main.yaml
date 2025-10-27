@@ -116,6 +116,8 @@
     force_basic_auth: true
     return_content: true
   register: agent_status
+  failed_when: false
+  # Note: May fail with 404 if agent hasn't been registered yet by JCasC
   when: verify_config | bool
 
 - name: Display Jenkins configuration status
