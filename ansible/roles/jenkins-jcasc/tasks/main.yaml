@@ -59,13 +59,14 @@
   changed_when: "'Installing' in plugin_install.stdout"
 
 - name: Restart Jenkins to load plugins
-  ansible.builtin.shell: |
-    # Termux doesn't support Jenkins safe-restart (no libc)
-    # Kill Jenkins process and restart it manually
-    pkill -f "java.*jenkins.war" || true
-    sleep 3
-    nohup {{ java_bin }} -jar {{ jenkins_home }}/jenkins.war --httpPort={{ jenkins_port }} > {{ jenkins_home }}/logs/jenkins.log 2>&1 &
-    sleep 5
+  ansible.builtin.shell:
+    cmd: |
+      # Termux doesn't support Jenkins safe-restart (no libc)
+      # Kill Jenkins process and restart it manually
+      pkill -f "java.*jenkins.war" || true
+      sleep 3
+      nohup {{ java_bin }} -jar {{ jenkins_war }} --httpPort={{ jenkins_port }} > {{ jenkins_home }}/logs/jenkins.log 2>&1 &
+      sleep 5
   when: plugin_install is changed
   changed_when: true
 
