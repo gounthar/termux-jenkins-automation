@@ -1,0 +1,37 @@
+---
+# Jenkins notification scripts deployment role
+# Deploys celebrate.sh, failure.sh, and jenkins-talking.sh to Termux home
+
+- name: Deploy Jenkins notification scripts
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ termux_home }}/{{ item }}"
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+  loop:
+    - celebrate.sh
+    - failure.sh
+    - jenkins-talking.sh
+  register: scripts_deployed
+
+- name: Verify scripts are executable
+  ansible.builtin.stat:
+    path: "{{ termux_home }}/{{ item }}"
+  loop:
+    - celebrate.sh
+    - failure.sh
+    - jenkins-talking.sh
+  register: script_stats
+
+- name: Display deployment summary
+  ansible.builtin.debug:
+    msg:
+      - "Notification scripts deployed to {{ termux_home }}:"
+      - "  - celebrate.sh (success notifications)"
+      - "  - failure.sh (failure alarms)"
+      - "  - jenkins-talking.sh (TTS announcements)"
+      - ""
+      - "Scripts can be used in Jenkins jobs via:"
+      - "  $HOME/celebrate.sh"
+      - "  $HOME/failure.sh"
+      - "  $HOME/jenkins-talking.sh"

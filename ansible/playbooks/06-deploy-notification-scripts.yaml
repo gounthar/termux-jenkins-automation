@@ -1,0 +1,54 @@
+---
+# Playbook: 06-deploy-notification-scripts.yaml
+# Purpose: Deploy Jenkins notification scripts (celebrate.sh, failure.sh, jenkins-talking.sh)
+# Usage: ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/06-deploy-notification-scripts.yaml
+
+- name: Deploy Jenkins Notification Scripts
+  hosts: termux_controller
+  gather_facts: false
+
+  tasks:
+    - name: Display deployment information
+      ansible.builtin.debug:
+        msg:
+          - "╔══════════════════════════════════════════════════╗"
+          - "║   Deploying Jenkins Notification Scripts        ║"
+          - "╚══════════════════════════════════════════════════╝"
+          - ""
+          - "Scripts to deploy:"
+          - "  - celebrate.sh: Visual celebration (flashlight fireworks)"
+          - "  - failure.sh: Visual alarm (SOS morse code)"
+          - "  - jenkins-talking.sh: French TTS announcements"
+          - ""
+          - "Deployment location: {{ termux_home }}"
+          - "Jenkins can reference scripts via: $HOME/script-name.sh"
+
+    - name: Deploy notification scripts
+      ansible.builtin.include_role:
+        name: jenkins-notifications
+
+    - name: Display usage examples
+      ansible.builtin.debug:
+        msg:
+          - ""
+          - "╔══════════════════════════════════════════════════╗"
+          - "║   Deployment Complete!                           ║"
+          - "╚══════════════════════════════════════════════════╝"
+          - ""
+          - "Usage in Jenkins jobs:"
+          - ""
+          - "  post {"
+          - "    success {"
+          - "      sh '$HOME/celebrate.sh'"
+          - "    }"
+          - "    failure {"
+          - "      sh '$HOME/failure.sh'"
+          - "    }"
+          - "    always {"
+          - "      sh '$HOME/jenkins-talking.sh'"
+          - "    }"
+          - "  }"
+          - ""
+          - "Test manually on device:"
+          - "  ssh {{ ansible_user }}@{{ ansible_host }} -p {{ ansible_port }}"
+          - "  ./celebrate.sh"
