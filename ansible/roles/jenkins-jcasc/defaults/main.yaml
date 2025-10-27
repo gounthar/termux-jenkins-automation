@@ -14,18 +14,18 @@ ssh_port: 8022  # Standard Termux SSH port
 java_bin: "{{ termux_bin }}/java"
 
 # JCasC configuration
-jcasc_config_source: "{{ playbook_dir }}/../jcasc/jenkins.yaml"
+jcasc_config_source: "{{ playbook_dir }}/../../jcasc/jenkins.yaml"
 jcasc_config_dest: "{{ jenkins_home }}/jenkins.yaml"
 jcasc_reload_token: "{{ lookup('env', 'JCASC_RELOAD_TOKEN') | default('changeme-' + ansible_date_time.epoch, true) }}"
 
 # Plugin management
-plugins_file_source: "{{ playbook_dir }}/../jcasc/plugins.txt"
+plugins_file_source: "{{ playbook_dir }}/../../jcasc/plugins.txt"
 plugins_file_dest: "{{ jenkins_home }}/plugins.txt"
 install_plugins_from_file: true
 
 # Sample jobs
 deploy_sample_jobs: true
-jobs_source_dir: "{{ playbook_dir }}/../jcasc/jobs"
+jobs_source_dir: "{{ playbook_dir }}/../../jcasc/jobs"
 
 # Jenkins CLI
 jenkins_cli_jar: "{{ jenkins_home }}/jenkins-cli.jar"
