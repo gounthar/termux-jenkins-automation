@@ -1,6 +1,16 @@
 ---
 # Default variables for jenkins-jcasc role
 
+# Termux paths
+termux_prefix: /data/data/com.termux/files
+termux_home: /data/data/com.termux/files/home
+termux_usr: /data/data/com.termux/files/usr
+termux_bin: /data/data/com.termux/files/usr/bin
+
+# Jenkins paths
+jenkins_home: "{{ termux_home }}/.jenkins"
+jenkins_port: 8080
+
 # JCasC configuration
 jcasc_config_source: "{{ playbook_dir }}/../jcasc/jenkins.yaml"
 jcasc_config_dest: "{{ jenkins_home }}/jenkins.yaml"
