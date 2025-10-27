@@ -1,0 +1,11 @@
+---
+# Default variables for jenkins-notifications role
+
+# Deploy notification scripts (can be disabled if not needed)
+deploy_notification_scripts: true
+
+# Script names to deploy
+notification_scripts:
+  - celebrate.sh
+  - failure.sh
+  - jenkins-talking.sh
