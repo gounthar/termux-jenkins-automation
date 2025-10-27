@@ -28,10 +28,15 @@
     path: "{{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }}.pub"
     mode: "0644"
 
+- name: Read public key content from remote host
+  ansible.builtin.slurp:
+    src: "{{ jenkins_agent_ssh_key_path }}/{{ jenkins_agent_ssh_key_name }}.pub"
+  register: agent_public_key
+
 - name: Add agent public key to authorized_keys for localhost SSH
   ansible.builtin.authorized_key:
     user: "{{ jenkins_agent_user }}"
-    key: "{{ lookup('file', jenkins_agent_ssh_key_path + '/' + jenkins_agent_ssh_key_name + '.pub') }}"
+    key: "{{ agent_public_key.content | b64decode }}"
     state: present
 
 - name: Configure agent environment variables
