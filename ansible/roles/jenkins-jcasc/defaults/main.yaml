@@ -11,6 +11,7 @@ termux_bin: /data/data/com.termux/files/usr/bin
 jenkins_home: "{{ termux_home }}/.jenkins"
 jenkins_port: 8080
 ssh_port: 8022  # Standard Termux SSH port
+java_bin: "{{ termux_bin }}/java"
 
 # JCasC configuration
 jcasc_config_source: "{{ playbook_dir }}/../jcasc/jenkins.yaml"
