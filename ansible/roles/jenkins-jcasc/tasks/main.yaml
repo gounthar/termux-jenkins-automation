@@ -35,6 +35,13 @@
   retries: 3
   delay: 10
 
+- name: Copy plugins.txt to remote machine
+  ansible.builtin.copy:
+    src: "{{ plugins_file_source }}"
+    dest: "{{ plugins_file_dest }}"
+    mode: "0644"
+  when: install_plugins_from_file | bool
+
 - name: Install plugins from plugins.txt
   ansible.builtin.shell: |
     while IFS=: read -r plugin version || [ -n "$plugin" ]; do
@@ -46,7 +53,7 @@
         -s http://localhost:{{ jenkins_port }}/ \
         -auth {{ jenkins_admin_user }}:{{ jenkins_admin_password }} \
         install-plugin "$plugin:$version" || true
-    done < {{ plugins_file_source }}
+    done < {{ plugins_file_dest }}
   when: install_plugins_from_file | bool
   register: plugin_install
   changed_when: "'Installing' in plugin_install.stdout"
