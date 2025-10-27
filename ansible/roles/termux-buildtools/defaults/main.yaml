@@ -51,7 +51,9 @@ python_pip_packages:
 # Node.js packages
 install_node_packages: true
 node_global_packages:
-  - npm
+  # Note: 'npm' itself cannot be installed globally via npm on Termux
+  # It will break global package installation. Use 'pkg upgrade nodejs' instead.
+  # See: https://github.com/termux/termux-packages/issues/13293
   - yarn
 
 # Environment variables to set
