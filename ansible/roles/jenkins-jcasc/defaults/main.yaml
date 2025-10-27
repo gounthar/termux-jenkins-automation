@@ -10,6 +10,7 @@ termux_bin: /data/data/com.termux/files/usr/bin
 # Jenkins paths
 jenkins_home: "{{ termux_home }}/.jenkins"
 jenkins_port: 8080
+ssh_port: 8022  # Standard Termux SSH port
 
 # JCasC configuration
 jcasc_config_source: "{{ playbook_dir }}/../jcasc/jenkins.yaml"
@@ -37,6 +38,8 @@ agent_name: "{{ jenkins_agent_name | default('termux-agent-1') }}"
 agent_home: "{{ jenkins_agent_home | default(termux_home + '/jenkins-agent') }}"
 agent_labels: "{{ jenkins_agent_labels | default('android termux mobile') }}"
 agent_ssh_key: "{{ jenkins_agent_ssh_key_path | default(jenkins_home + '/ssh') }}/{{ jenkins_agent_ssh_key_name | default('id_ed25519') }}"
+jenkins_agent_user: "{{ ansible_user | default('termux') }}"
+jenkins_agent_executors: 2
 
 # Reload configuration
 reload_jcasc: true
