@@ -12,7 +12,7 @@ termux_bin: /data/data/com.termux/files/usr/bin
 jenkins_version: 2.479.1  # LTS version
 jenkins_port: 8080
 jenkins_home: "{{ termux_home }}/.jenkins"
-jenkins_war: "{{ termux_home }}/jenkins.war"
+jenkins_war: "{{ jenkins_home }}/jenkins.war"
 java_bin: "{{ termux_bin }}/java"
 jenkins_admin_user: admin
 jenkins_admin_password: "{{ lookup('env', 'JENKINS_ADMIN_PASSWORD') | default('admin', true) }}"
