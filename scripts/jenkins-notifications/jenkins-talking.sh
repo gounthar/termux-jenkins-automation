@@ -25,7 +25,7 @@ mkfifo "$FIFO_PATH" || { echo "Failed to create FIFO"; exit 1; }
 (
     while $RUNNING; do
         if read -r line < "$FIFO_PATH"; then
-            termux-tts-speak $line
+            eval "termux-tts-speak $line"
         fi
     done
 ) &
@@ -53,4 +53,3 @@ for i in $(seq 0 $steps); do
 done
 
 echo "TTS loop completed"
-cleanup

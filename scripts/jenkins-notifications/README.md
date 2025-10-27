@@ -40,7 +40,7 @@ post {
 Visual alarm for build failures using pulsing flashlight patterns.
 
 **Features:**
-- **Alarm pattern**: Three descending-intensity pulses
+- **Alarm pattern**: Three pulsing flashes
 - **SOS morse code**: Standard distress signal (··· --- ···)
 - Red console warnings
 
@@ -123,9 +123,8 @@ pkg install termux-api
 
 ### 3. Grant Permissions
 
-Grant the following permissions to Termux in Android Settings:
+Grant the following permission to Termux in Android Settings:
 - **Camera** (for flashlight control)
-- **Microphone** (optional, for TTS)
 
 ### 4. Copy Scripts to Termux
 

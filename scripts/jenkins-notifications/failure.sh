@@ -4,6 +4,13 @@
 # FAILURE NOTIFICATION SCRIPT FOR TERMUX
 # ======================================
 
+# Cleanup handler to ensure torch is off on exit
+cleanup() {
+    # Ensure torch is off on exit
+    termux-torch off 2>/dev/null
+}
+trap cleanup EXIT INT TERM
+
 # Visual banner with red warning
 show_warning() {
     echo -e "\n\033[1;31m"
@@ -15,7 +22,7 @@ show_warning() {
 
 # Pulsing "alarm" pattern
 alarm_pattern() {
-    # 3 long pulses with descending intensity
+    # 3 long pulses
     for i in 3 2 1; do
         termux-torch on
         sleep 0.8  # Long on duration
@@ -36,26 +43,26 @@ sos_pattern() {
     local s=(0.2 0.2 0.2)    # S = short x3
     local o=(0.6 0.6 0.6)    # O = long x3
     local pause=0.3
-    
+
+    # Helper function to flash a pattern
+    _flash_pattern() {
+        local pattern=("$@")
+        for dur in "${pattern[@]}"; do
+            termux-torch on && sleep "$dur"
+            termux-torch off && sleep 0.1
+        done
+    }
+
     # Flash S
-    for dur in "${s[@]}"; do
-        termux-torch on && sleep $dur
-        termux-torch off && sleep 0.1
-    done
-    sleep $pause
-    
+    _flash_pattern "${s[@]}"
+    sleep "$pause"
+
     # Flash O
-    for dur in "${o[@]}"; do
-        termux-torch on && sleep $dur
-        termux-torch off && sleep 0.1
-    done
-    sleep $pause
-    
+    _flash_pattern "${o[@]}"
+    sleep "$pause"
+
     # Flash S
-    for dur in "${s[@]}"; do
-        termux-torch on && sleep $dur
-        termux-torch off && sleep 0.1
-    done
+    _flash_pattern "${s[@]}"
 }
 
 # Main failure sequence
@@ -68,9 +75,5 @@ alarm_pattern
 sleep 0.5
 sos_pattern
 
-# Ensure torch is off when done
-termux-torch off
-
 echo -e "\n\033[1;31mAlert sequence completed.\033[0m"
 echo "Investigate the build immediately!"
-

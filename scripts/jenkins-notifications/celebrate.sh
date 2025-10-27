@@ -4,6 +4,13 @@
 # FESTIVE CELEBRATION SCRIPT FOR TERMUX-TORCH
 # ==========================================
 
+# Cleanup handler to ensure torch is off on exit
+cleanup() {
+    # Ensure torch is off on exit
+    termux-torch off 2>/dev/null
+}
+trap cleanup EXIT INT TERM
+
 # Function: Show colorful console message
 show_banner() {
     echo -e "\n\033[1;36m"
