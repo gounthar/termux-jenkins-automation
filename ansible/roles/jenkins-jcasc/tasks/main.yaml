@@ -127,7 +127,7 @@
       - "JCasC config: {{ jcasc_config_dest }}"
       - "Plugins installed: {{ 'Yes' if plugin_install is changed else 'Skipped or already installed' }}"
       - "Configuration reloaded: {{ 'Yes' if jcasc_reload_result is succeeded else 'Failed' }}"
-      - "Agent {{ agent_name }}: {{ 'Connected' if agent_status is succeeded and 'offline' not in (agent_status.content | from_json).offline | string | lower else 'Check status in Jenkins UI' }}"
+      - "Agent {{ agent_name }}: {{ 'Connected' if agent_status is succeeded else 'Check status in Jenkins UI' }}"
       - ""
       - "Access Jenkins at: http://{{ ansible_host }}:{{ jenkins_port }}"
       - "Login: {{ jenkins_admin_user }} / {{ jenkins_admin_password }}"
