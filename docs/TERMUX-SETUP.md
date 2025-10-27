@@ -68,7 +68,7 @@ sshd
 
 # Start Jenkins
 cd ~
-nohup java -jar jenkins.war --httpPort=8080 > ~/.jenkins/logs/jenkins.log 2>&1 &
+nohup java -jar ~/.jenkins/jenkins.war --httpPort=8080 > ~/.jenkins/logs/jenkins.log 2>&1 &
 EOF
 
 # 4. Make script executable

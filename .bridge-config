@@ -1,0 +1,8 @@
+# Telegram Bridge Session Configuration
+# Auto-generated for project: termux-jenkins-automation
+
+SESSION_NAME="termux-jenkins-automation"
+SESSION_EMOJI=""
+SHOW_WORKING_DIR="no"
+AUTH_REQUESTS_ENABLED="yes"
+AUTH_TIMEOUT="300"

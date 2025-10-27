@@ -140,7 +140,7 @@ backups/jenkins-YYYYMMDD_HHMMSS.tar.gz
    ```bash
    # On Termux
    pkill -f jenkins.war
-   java -jar ~/jenkins.war &
+   java -jar ~/.jenkins/jenkins.war &
    ```
 
 ### Automated Restore (Future Enhancement)
