@@ -1,6 +1,12 @@
 ---
-# Jenkins Configuration as Code (JCasC)
-# This configuration will be deployed to the Jenkins controller
+# Jenkins Configuration as Code (JCasC) - Reference Documentation
+#
+# NOTE: This file is reference documentation showing the JCasC structure.
+# The actual deployment uses the templated version from:
+# ansible/roles/jenkins-jcasc/templates/jenkins.yaml.j2
+#
+# The template substitutes variables like {{ jenkins_agent_user }} with actual values
+# from group_vars and role defaults during Ansible playbook execution.
 
 jenkins:
   systemMessage: "Jenkins on Android - CloudNord Demo\nManaged by Configuration as Code"
@@ -49,7 +55,7 @@ credentials:
                 directEntry:
                   privateKey: ${readFile:/data/data/com.termux/files/home/.jenkins/ssh/id_ed25519}
               scope: SYSTEM
-              username: "jenkins-agent"
+              username: "u0_a504"  # Android user ID - update to match `whoami` output on your device
 
 unclassified:
   location:
