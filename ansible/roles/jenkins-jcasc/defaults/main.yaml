@@ -9,6 +9,7 @@ termux_bin: /data/data/com.termux/files/usr/bin
 
 # Jenkins paths
 jenkins_home: "{{ termux_home }}/.jenkins"
+jenkins_war: "{{ termux_home }}/jenkins.war"
 jenkins_port: 8080
 ssh_port: 8022  # Standard Termux SSH port
 java_bin: "{{ termux_bin }}/java"
