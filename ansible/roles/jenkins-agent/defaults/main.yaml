@@ -1,5 +1,8 @@
 ---
 # Default variables for jenkins-agent role
+# Note: Termux path variables (termux_prefix, termux_home, termux_usr, termux_bin),
+# Jenkins paths (jenkins_home), and ssh_port are defined in group_vars/termux.yaml
+# and inherited by all Termux hosts
 
 # Agent configuration
 jenkins_agent_name: "termux-agent-1"

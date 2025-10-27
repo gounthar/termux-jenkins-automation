@@ -1,5 +1,7 @@
 ---
 # Default variables for termux-buildtools role
+# Note: Termux path variables (termux_prefix, termux_home, termux_usr, termux_bin)
+# are defined in group_vars/termux.yaml and inherited by all Termux hosts
 
 # Build essentials
 build_packages:
@@ -35,7 +37,8 @@ dev_tools:
 # Python packages
 install_python_packages: true
 python_pip_packages:
-  - pip
+  # Note: 'pip' itself cannot be installed/upgraded via pip on Termux
+  # It will break the python-pip package. Use 'pkg upgrade python-pip' instead.
   - setuptools
   - wheel
   - virtualenv
@@ -44,7 +47,9 @@ python_pip_packages:
 # Node.js packages
 install_node_packages: true
 node_global_packages:
-  - npm
+  # Note: 'npm' itself cannot be installed globally via npm on Termux
+  # It will break global package installation. Use 'pkg upgrade nodejs' instead.
+  # See: https://github.com/termux/termux-packages/issues/13293
   - yarn
 
 # Environment variables to set

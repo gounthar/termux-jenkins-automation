@@ -6,11 +6,14 @@
 termux_prefix: /data/data/com.termux/files
 termux_home: /data/data/com.termux/files/home
 termux_usr: /data/data/com.termux/files/usr
+termux_bin: /data/data/com.termux/files/usr/bin
 
 # Jenkins configuration
 jenkins_version: 2.479.1  # LTS version
 jenkins_port: 8080
 jenkins_home: "{{ termux_home }}/.jenkins"
+jenkins_war: "{{ termux_home }}/jenkins.war"
+java_bin: "{{ termux_bin }}/java"
 jenkins_admin_user: admin
 jenkins_admin_password: "{{ lookup('env', 'JENKINS_ADMIN_PASSWORD') | default('admin', true) }}"
 
@@ -20,6 +23,7 @@ jenkins_agent_user: jenkins-agent
 jenkins_agent_port: 8022
 
 # SSH configuration
+ssh_port: 8022  # Termux SSH daemon port
 ssh_key_type: ed25519
 ssh_key_path: "{{ termux_home }}/.ssh"
 

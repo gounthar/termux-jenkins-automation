@@ -1,32 +1,38 @@
 ---
 # Default variables for jenkins-jcasc role
+# Note: Termux path variables (termux_prefix, termux_home, termux_usr, termux_bin),
+# Jenkins paths (jenkins_home, jenkins_war, jenkins_port, java_bin), and ssh_port
+# are defined in group_vars/termux.yaml and inherited by all Termux hosts
 
 # JCasC configuration
-jcasc_config_source: "{{ playbook_dir }}/../jcasc/jenkins.yaml"
+jcasc_config_source: "{{ playbook_dir }}/../../jcasc/jenkins.yaml"
 jcasc_config_dest: "{{ jenkins_home }}/jenkins.yaml"
 jcasc_reload_token: "{{ lookup('env', 'JCASC_RELOAD_TOKEN') | default('changeme-' + ansible_date_time.epoch, true) }}"
 
 # Plugin management
-plugins_file_source: "{{ playbook_dir }}/../jcasc/plugins.txt"
+plugins_file_source: "{{ playbook_dir }}/../../jcasc/plugins.txt"
+plugins_file_dest: "{{ jenkins_home }}/plugins.txt"
 install_plugins_from_file: true
 
 # Sample jobs
 deploy_sample_jobs: true
-jobs_source_dir: "{{ playbook_dir }}/../jcasc/jobs"
+jobs_source_dir: "{{ playbook_dir }}/../../jcasc/jobs"
 
 # Jenkins CLI
 jenkins_cli_jar: "{{ jenkins_home }}/jenkins-cli.jar"
 jenkins_cli_url: "http://localhost:{{ jenkins_port }}/jnlpJars/jenkins-cli.jar"
 
 # Credentials
-jenkins_admin_user: "{{ jenkins_admin_user | default('admin') }}"
-jenkins_admin_password: "{{ jenkins_admin_password | default('admin') }}"
+jenkins_admin_user: "admin"
+jenkins_admin_password: "admin"
 
 # Agent configuration (from jenkins-agent role)
 agent_name: "{{ jenkins_agent_name | default('termux-agent-1') }}"
 agent_home: "{{ jenkins_agent_home | default(termux_home + '/jenkins-agent') }}"
 agent_labels: "{{ jenkins_agent_labels | default('android termux mobile') }}"
 agent_ssh_key: "{{ jenkins_agent_ssh_key_path | default(jenkins_home + '/ssh') }}/{{ jenkins_agent_ssh_key_name | default('id_ed25519') }}"
+jenkins_agent_user: "{{ ansible_user | default('termux') }}"
+jenkins_agent_executors: 2
 
 # Reload configuration
 reload_jcasc: true
