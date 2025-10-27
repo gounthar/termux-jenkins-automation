@@ -72,36 +72,7 @@ tool:
       - name: "{{ jdk_tool_name }}"
         home: "{{ termux_usr }}/opt/openjdk"
 
-jobs:
-  - script: |
-      pipelineJob('hello-world') {
-        description('Simple hello world pipeline - CloudNord Demo')
-        definition {
-          cps {
-            script("""
-              pipeline {
-                agent { label 'termux' }
-                stages {
-                  stage('Hello') {
-                    steps {
-                      sh 'echo "Hello from Android!"'
-                      sh 'echo "Running on: \$(uname -a)"'
-                      sh 'echo "Java version:"'
-                      sh 'java -version'
-                    }
-                  }
-                  stage('Phone Info') {
-                    steps {
-                      sh 'echo "Build tools available:"'
-                      sh 'which git python node || true'
-                      sh 'echo "Disk space:"'
-                      sh 'df -h | head -5'
-                    }
-                  }
-                }
-              }
-            """)
-            sandbox()
-          }
-        }
-      }
+# NOTE: Jobs are NOT managed via JCasC
+# Jobs should be created manually via Jenkins UI or CLI, then backed up using:
+#   ansible-playbook ansible/playbooks/backup-jenkins.yaml
+# To restore jobs on a new instance, extract job configs from backup tarball
