@@ -19,7 +19,7 @@ jenkins_admin_password: "{{ lookup('env', 'JENKINS_ADMIN_PASSWORD') | default('a
 
 # Agent configuration
 jenkins_agent_home: "{{ termux_home }}/jenkins-agent"
-jenkins_agent_user: jenkins-agent
+jenkins_agent_user: "{{ ansible_user }}"
 jenkins_agent_port: 8022
 
 # SSH configuration
