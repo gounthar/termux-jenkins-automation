@@ -102,6 +102,8 @@
     password: "{{ jenkins_admin_password }}"
     force_basic_auth: true
     status_code: [200, 201]
+  failed_when: false
+  # Note: May fail with 403 if CSRF protection is enabled or if JCasC already loaded on restart
   when: reload_jcasc | bool
   register: jcasc_reload_result
 
