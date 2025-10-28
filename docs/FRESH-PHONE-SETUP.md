@@ -295,34 +295,130 @@ ansible-playbook -i ansible/inventory/hosts.yaml \
 
 ## Issues Encountered
 
-### Issue 1: [Title]
+### Issue 1: Plugin Installation Failed (CRITICAL)
 **Description:**
+Only 3 plugins were installed instead of the expected 88 plugins from `plugins.txt`.
 
+**Actual plugins installed:**
+- ant:520.vd082ecfb_16a_9
+- commons-lang3-api (dependency)
+- structs (dependency)
 
-**Solution:**
+**Expected:** 88 plugins including configuration-as-code, git, workflow-aggregator, ssh-slaves, etc.
 
+**Root Cause:**
+The jenkins-jcasc role attempts to install plugins using jenkins-plugin-cli, but this tool either:
+1. Doesn't exist in the Jenkins installation
+2. Failed silently during execution
+3. Requires additional setup not performed by the playbook
+
+**Impact:**
+- ❌ SSH agent plugin not installed → Agent cannot connect to controller
+- ❌ Git plugin missing → Cannot run git-based jobs
+- ❌ Pipeline plugins missing → Cannot run pipeline jobs
+- ❌ Configuration-as-code plugin missing → JCasC not fully functional
+
+**Workaround:**
+Manual plugin installation required via Jenkins UI or CLI after setup.
+
+**GitHub Issue:** #[to be created]
 
 ---
 
-### Issue 2: [Title]
+### Issue 2: Agent Not Connected (Consequence of Issue #1)
 **Description:**
+Jenkins agent (termux-agent-1) is configured but not connected to the controller.
 
+**Configuration status:**
+- ✅ Agent directories created
+- ✅ SSH key generated
+- ✅ SSH test passed (localhost:8022)
+- ✅ JCasC configuration deployed
+- ❌ Agent node not visible in Jenkins UI
 
-**Solution:**
+**Root Cause:**
+Missing ssh-slaves plugin (dependency of Issue #1). Without this plugin, Jenkins cannot create SSH-based agent nodes even with valid JCasC configuration.
 
+**Verification attempted:**
+```bash
+curl -s http://localhost:8080/computer/api/json
+# Returns 403 Forbidden (requires authentication)
+# Manual UI check confirms: no agent nodes present
+```
+
+**Workaround:**
+1. Install ssh-slaves plugin manually
+2. Apply JCasC configuration again
+3. Or manually create agent node via Jenkins UI
+
+---
+
+### Issue 3: Termux:Boot Detection Failed (Minor)
+**Description:**
+The termux-boot-setup role reported that Termux:Boot was NOT installed, but it actually IS installed.
+
+**Evidence:**
+```bash
+pm list packages | grep termux
+# Output shows: package:com.termux.boot
+```
+
+**Impact:**
+- ❌ Boot scripts were NOT deployed to ~/.termux/boot/
+- ❌ Jenkins will NOT auto-start on device reboot
+- ⚠️ Manual start required after reboot: `sv-enable sshd && sv-enable jenkins`
+
+**Root Cause:**
+The Termux:Boot detection check in the playbook likely checks for:
+1. Wrong package name
+2. Wrong installation path
+3. Wrong permissions or access method
+
+**Workaround:**
+Manually run the boot configuration playbook:
+```bash
+ansible-playbook -i ansible/inventory/hosts.yaml \
+  ansible/playbooks/05-configure-boot.yaml
+```
+
+**GitHub Issue:** #[to be created]
+
+---
+
+### Issue 4: Python Must Be Installed Manually (DOCUMENTED)
+**Description:**
+Ansible requires Python on the target device before it can execute any modules, but fresh Termux installations don't have Python.
+
+**Solution:** ✅ DOCUMENTED in Step 1
+```bash
+pkg install python
+```
+
+This is now a mandatory prerequisite step before running the automation.
+
+---
+
+### Issue 5: ssh-copy-id Authentication Failures (DOCUMENTED)
+**Description:**
+Multiple SSH keys in ~/.ssh/ cause "Too many authentication failures" when running ssh-copy-id.
+
+**Solution:** ✅ DOCUMENTED in Step 2
+```bash
+ssh-copy-id -o IdentitiesOnly=yes -p 8022 -i ~/.ssh/termux_ed25519 192.168.1.53
+```
 
 ---
 
 ## Timing Breakdown
 
-- Step 1 (Termux config): ___ minutes
-- Step 2 (Control machine): ___ minutes
-- Step 3 (Inventory update): ___ minutes
-- Step 4 (Ansible test): ___ minutes
-- Step 5 (Complete setup): ___ minutes
-- Step 6 (Verification): ___ minutes
+- Step 1 (Termux config): ~3 minutes
+- Step 2 (Control machine): ~2 minutes
+- Step 3 (Inventory update): ~1 minute
+- Step 4 (Ansible test): ~1 minute
+- Step 5 (Complete setup): ~15 minutes
+- Step 6 (Verification): ~1 minute
 
-**Total time:** ___ minutes
+**Total time:** ~23 minutes (including manual Python installation)
 
 ---
 
@@ -330,26 +426,49 @@ ansible-playbook -i ansible/inventory/hosts.yaml \
 
 ### Versions Installed
 - Jenkins: 2.528.1 (LTS)
-- OpenJDK: 21
-- Python: [To be filled]
-- Node.js: [To be filled]
-- Termux packages: [To be filled]
+- OpenJDK: 21.0.9
+- Python: 3.12.12
+- Node.js: v24.9.0
+- Git: 2.51.2
+- Go: latest (installed)
+- Ruby: latest (installed)
+- Maven: latest (installed)
 
 ### Plugin Count
-- Total plugins installed: 88 (from jenkins-docs reference)
+- **Expected:** 88 plugins (from plugins.txt)
+- **Actually Installed:** 3 plugins (ant, commons-lang3-api, structs)
+- **Status:** ❌ PLUGIN INSTALLATION FAILED (see Issue #1)
 
-### Notable Plugins
-- configuration-as-code: 2006.v001a_2ca_6b_574
-- git: 5.8.0
-- workflow-aggregator: 608.v67378e9d3db_1
+### Notable Missing Plugins
+- ❌ configuration-as-code: Not installed
+- ❌ git: Not installed
+- ❌ workflow-aggregator: Not installed
+- ❌ ssh-slaves: Not installed
+- **Impact:** Jenkins is running but lacks most functionality
 
 ---
 
 ## Lessons Learned
 
-1.
-2.
-3.
+1. **Python is a critical prerequisite** - Ansible cannot work without Python on the target. This must be installed manually before automation (`pkg install python`).
+
+2. **Multiple SSH keys cause authentication failures** - The `-o IdentitiesOnly=yes` flag is essential when using ssh-copy-id if you have multiple keys in ~/.ssh/.
+
+3. **Plugin installation mechanism needs verification** - The jenkins-plugin-cli approach failed silently. Need to investigate alternative methods (Jenkins CLI, REST API, or manual installation).
+
+4. **Termux:Boot detection is unreliable** - The package detection check failed even though the app is installed. Need better detection method (perhaps checking the .termux/boot directory existence).
+
+5. **Fresh phone testing reveals hidden issues** - Issues that might not appear when upgrading existing installations become obvious on fresh setups.
+
+6. **JCasC depends on plugins** - Configuration-as-code YAML can be deployed, but it won't work without the required plugins installed first.
+
+7. **Agent setup is multi-layered** - Even with perfect SSH configuration, agent connection fails without the ssh-slaves plugin.
+
+8. **Automation reports can be misleading** - Ansible playbook reported "success" even though plugin installation failed. Need better verification steps.
+
+9. **Old phone emoji (☎️) works great** - Visual distinction for demo purposes (vs modern smartphone emoji 📱).
+
+10. **Total time is reasonable** - ~23 minutes for complete fresh phone setup is acceptable for CloudNord demo, even with manual interventions needed.
 
 ---
 
