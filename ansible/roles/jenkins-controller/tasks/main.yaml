@@ -130,7 +130,7 @@
   register: jenkins_service_enabled_result
 
 - name: Start Jenkins service
-  ansible.builtin.command: sv up {{ jenkins_service_name }}
+  ansible.builtin.command: sv up {{ termux_usr }}/var/service/{{ jenkins_service_name }}
   when: jenkins_service_enabled | bool
   register: jenkins_start
   changed_when: "'run:' in jenkins_start.stdout or 'ok:' in jenkins_start.stdout"
