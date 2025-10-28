@@ -88,6 +88,33 @@ cat ~/.ssh/termux_ed25519.pub
 
 **Step 3: Run Ansible automation from your laptop/PC**
 
+**Option A: Interactive Setup Script (Recommended)**
+
+```bash
+# On your laptop/PC:
+
+# 1. Clone this repository
+git clone https://github.com/gounthar/termux-jenkins-automation.git
+cd termux-jenkins-automation
+
+# 2. Run interactive setup
+./scripts/run-setup.sh
+
+# The script will prompt you for:
+# - Device IP address
+# - SSH port (default: 8022)
+# - Termux username (from whoami)
+# - Jenkins admin password
+# - Authentication method (SSH key or password)
+
+# 3. Access Jenkins
+# On phone: http://localhost:8080
+# From laptop: http://<phone-ip>:8080
+# Login: admin / <password-you-chose>
+```
+
+**Option B: Manual Configuration**
+
 ```bash
 # On your laptop/PC:
 
