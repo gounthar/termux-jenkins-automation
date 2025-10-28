@@ -19,6 +19,10 @@
   changed_when: false
   failed_when: false
 
+- name: Set Termux:Boot installation status fact
+  ansible.builtin.set_fact:
+    termux_boot_installed: "{{ termux_boot_check.stdout != '' }}"
+
 - name: Warn if Termux:Boot not installed
   ansible.builtin.debug:
     msg:
@@ -40,21 +44,21 @@
       - "  ssh -p 8022 termux@<phone-ip>"
       - "  sv-enable sshd && sv-enable jenkins"
       - ""
-  when: termux_boot_check.stdout == ""
+  when: not termux_boot_installed
 
 - name: Create boot directory if it doesn't exist
   ansible.builtin.file:
     path: "{{ termux_home }}/.termux/boot"
     state: directory
     mode: "0700"
-  when: termux_boot_check.stdout != ""
+  when: termux_boot_installed
 
 - name: Deploy Jenkins boot script
   ansible.builtin.template:
     src: start-jenkins.sh.j2
     dest: "{{ boot_script_path }}"
     mode: "0700"
-  when: termux_boot_check.stdout != ""
+  when: termux_boot_installed
   register: boot_script_deployed
 
 - name: Display boot script location
@@ -82,7 +86,7 @@
   register: syntax_check
   changed_when: false
   failed_when: syntax_check.rc != 0
-  when: termux_boot_check.stdout != ""
+  when: termux_boot_installed
 
 - name: Display testing instructions
   ansible.builtin.debug:
@@ -106,13 +110,13 @@
       - "  sv status jenkins"
       - "  sv status sshd"
       - ""
-  when: termux_boot_check.stdout != ""
+  when: termux_boot_installed
 
 - name: Display completion summary
   ansible.builtin.debug:
     msg:
       - ""
       - "╔════════════════════════════════════════════════════════╗"
-      - "║   Boot Configuration {{ ('Complete' if termux_boot_check.stdout != '' else 'Skipped') | center(36) }} ║"  # 36 chars = box width (58) - borders (4) - padding (18)
+      - "║   Boot Configuration {{ ('Complete' if termux_boot_installed else 'Skipped') | center(36) }} ║"  # 36 chars = box width (58) - borders (4) - padding (18)
       - "╚════════════════════════════════════════════════════════╝"
       - ""
