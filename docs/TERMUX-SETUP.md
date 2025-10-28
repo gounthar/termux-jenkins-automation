@@ -57,24 +57,15 @@ termux-battery-status
 **Setup for auto-starting Jenkins**:
 ```bash
 # 1. Install Termux:Boot from F-Droid
-# 2. Create boot script directory
-mkdir -p ~/.termux/boot/
+# 2. Install termux-services (required for sv commands)
+pkg install termux-services
 
-# 3. Create auto-start script
-cat > ~/.termux/boot/start-services.sh << 'EOF'
-#!/data/data/com.termux/files/usr/bin/bash
-# Start SSH daemon
-sshd
+# 3. Enable services to start on boot
+sv-enable sshd
+sv-enable jenkins
 
-# Start Jenkins
-cd ~
-nohup java -jar ~/.jenkins/jenkins.war --httpPort=8080 > ~/.jenkins/logs/jenkins.log 2>&1 &
-EOF
-
-# 4. Make script executable
-chmod +x ~/.termux/boot/start-services.sh
-
-# 5. Reboot device to test
+# 4. Reboot device to test
+# Both SSH and Jenkins will start automatically on boot
 ```
 
 #### Other Available Add-ons

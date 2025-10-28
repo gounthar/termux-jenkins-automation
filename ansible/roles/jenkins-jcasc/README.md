@@ -95,7 +95,7 @@ Requires:
 **JCasC not applying on startup:**
 - Check `CASC_JENKINS_CONFIG` environment variable is set in service script
 - Verify `~/.jenkins/jenkins.yaml` exists and has correct permissions
-- Check Jenkins logs for JCasC errors: `~/.jenkins/logs/jenkins.log`
+- Check Jenkins logs for JCasC errors: `~/.jenkins/logs/current` (managed by svlogd)
 
 **Agent not connecting:**
 - Verify SSH key exists: `~/.jenkins/ssh/id_ed25519`

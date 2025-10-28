@@ -90,9 +90,6 @@ pkg install python
 echo 'export PS1="☎️  \w $ "' >> ~/.bashrc
 source ~/.bashrc
 # Your prompt will now show: ☎️  ~ $
-
-# 11. Start SSH server
-sshd
 ```
 
 **Results:**
