@@ -321,7 +321,7 @@ The jenkins-jcasc role attempts to install plugins using jenkins-plugin-cli, but
 **Workaround:**
 Manual plugin installation required via Jenkins UI or CLI after setup.
 
-**GitHub Issue:** #[to be created]
+**GitHub Issue:** #35
 
 ---
 
@@ -381,7 +381,7 @@ ansible-playbook -i ansible/inventory/hosts.yaml \
   ansible/playbooks/05-configure-boot.yaml
 ```
 
-**GitHub Issue:** #[to be created]
+**GitHub Issue:** #36
 
 ---
 
