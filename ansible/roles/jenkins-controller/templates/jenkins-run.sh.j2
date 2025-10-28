@@ -1,0 +1,8 @@
+#!/data/data/com.termux/files/usr/bin/sh
+# Jenkins service run script for termux-services (runit/sv)
+# Managed by Ansible - jenkins-controller role
+
+exec {{ java_bin }} {{ jenkins_java_options }} \
+  -jar {{ jenkins_war }} \
+  {{ jenkins_args }} \
+  2>&1

@@ -98,17 +98,27 @@
     dest: "{{ jenkins_service_script }}"
     mode: "0755"
 
-- name: Create Jenkins service directory for termux-services
+- name: Create Jenkins service directory structure
   ansible.builtin.file:
-    path: "{{ termux_usr }}/var/service/{{ jenkins_service_name }}"
+    path: "{{ item }}"
     state: directory
+    mode: "0755"
+  loop:
+    - "{{ termux_home }}/.termux/sv/{{ jenkins_service_name }}"
+    - "{{ termux_home }}/.termux/sv/{{ jenkins_service_name }}/log"
+  when: jenkins_service_enabled | bool
+
+- name: Create Jenkins service run script
+  ansible.builtin.template:
+    src: jenkins-run.sh.j2
+    dest: "{{ termux_home }}/.termux/sv/{{ jenkins_service_name }}/run"
     mode: "0755"
   when: jenkins_service_enabled | bool
 
-- name: Create Jenkins service script for termux-services
+- name: Create Jenkins service log/run script
   ansible.builtin.template:
-    src: jenkins-service.sh.j2
-    dest: "{{ termux_usr }}/var/service/{{ jenkins_service_name }}/run"
+    src: jenkins-log-run.sh.j2
+    dest: "{{ termux_home }}/.termux/sv/{{ jenkins_service_name }}/log/run"
     mode: "0755"
   when: jenkins_service_enabled | bool
 
@@ -117,13 +127,13 @@
   args:
     creates: "{{ termux_usr }}/var/service/{{ jenkins_service_name }}"
   when: jenkins_service_enabled | bool
+  register: jenkins_service_enabled_result
 
-- name: Start Jenkins
-  ansible.builtin.command: "{{ jenkins_service_script }}"
-  async: 30
-  poll: 0
+- name: Start Jenkins service
+  ansible.builtin.command: sv up {{ termux_usr }}/var/service/{{ jenkins_service_name }}
+  when: jenkins_service_enabled | bool
   register: jenkins_start
-  changed_when: true
+  changed_when: "'run:' in jenkins_start.stdout or 'ok:' in jenkins_start.stdout"
 
 - name: Wait for Jenkins to start
   ansible.builtin.uri:

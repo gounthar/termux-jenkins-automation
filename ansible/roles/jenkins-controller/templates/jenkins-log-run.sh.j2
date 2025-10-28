@@ -1,0 +1,6 @@
+#!/data/data/com.termux/files/usr/bin/sh
+# Jenkins service log script for termux-services (runit/sv)
+# Managed by Ansible - jenkins-controller role
+
+mkdir -p {{ jenkins_home }}/logs
+exec svlogd -tt {{ jenkins_home }}/logs
