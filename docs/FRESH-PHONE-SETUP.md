@@ -80,12 +80,18 @@ ifconfig
 # NOTE: You'll see "Warning: cannot open /proc/net/dev" - this is NORMAL in Termux
 # Just ignore the warning and look for the inet line with your IP address
 
-# 9. Customize prompt with phone emoji (for demo visual appeal)
-echo 'export PS1="📱 \w $ "' >> ~/.bashrc
-source ~/.bashrc
-# Your prompt will now show: 📱 ~ $
+# 9. Install Python (REQUIRED for Ansible)
+pkg install python
+# This is CRITICAL for Ansible automation
+# Without Python, Ansible cannot gather facts or execute any modules
+# This must be installed BEFORE running the automation playbook
 
-# 10. Start SSH server
+# 10. Customize prompt with old phone emoji (for demo visual appeal)
+echo 'export PS1="☎️  \w $ "' >> ~/.bashrc
+source ~/.bashrc
+# Your prompt will now show: ☎️  ~ $
+
+# 11. Start SSH server
 sshd
 ```
 
@@ -97,8 +103,9 @@ sshd
 - [x] Password set
 - [x] User ID: **u0_a556**
 - [x] Phone IP: **192.168.1.53**
-- [ ] Prompt customized with 📱 emoji: [ ]
-- [ ] SSH server started: [ ]
+- [x] Python installed (required for Ansible)
+- [x] Prompt customized with ☎️ emoji
+- [x] SSH server started
 
 **Troubleshooting Tips:**
 - If `pkg update` is slow or times out, run `termux-change-repo` again and try a different mirror
