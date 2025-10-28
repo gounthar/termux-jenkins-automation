@@ -85,12 +85,9 @@ pkg install python
 # This is CRITICAL for Ansible automation
 # Without Python, Ansible cannot gather facts or execute any modules
 # This must be installed BEFORE running the automation playbook
-
-# 10. Customize prompt with old phone emoji (for demo visual appeal)
-echo 'export PS1="☎️  \w $ "' >> ~/.bashrc
-source ~/.bashrc
-# Your prompt will now show: ☎️  ~ $
 ```
+
+**Note**: The old phone emoji prompt (☎️) will be automatically configured by the automation playbook.
 
 **Results:**
 - [x] Mirror selected (region): _____________
@@ -101,8 +98,8 @@ source ~/.bashrc
 - [x] User ID: **u0_a556**
 - [x] Phone IP: **192.168.1.53**
 - [x] Python installed (required for Ansible)
-- [x] Prompt customized with ☎️ emoji
 - [x] SSH server started
+- [ ] Prompt customization (☎️ emoji) - automated by playbook
 
 **Troubleshooting Tips:**
 - If `pkg update` is slow or times out, run `termux-change-repo` again and try a different mirror

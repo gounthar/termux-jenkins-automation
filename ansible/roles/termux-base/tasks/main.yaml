@@ -88,9 +88,17 @@
     - sshd_status.rc != 0
   changed_when: true
 
+- name: Customize shell prompt with phone emoji
+  ansible.builtin.lineinfile:
+    path: "{{ termux_home }}/.bashrc"
+    line: 'export PS1="☎️  \w $ "'
+    create: true
+    mode: "0644"
+
 - name: Display SSH connection information
   ansible.builtin.debug:
     msg:
       - "Termux base setup complete!"
       - "SSH is running on port {{ ssh_port }}"
       - "Connect with: ssh -p {{ ssh_port }} {{ ansible_user }}@{{ ansible_host }}"
+      - "Custom prompt: ☎️  (old phone emoji for CloudNord demo)"
