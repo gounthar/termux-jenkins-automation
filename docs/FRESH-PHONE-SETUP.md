@@ -179,7 +179,7 @@ phone1:
 
 **Command:**
 ```bash
-cd /mnt/c/support/users/talks/2025/termux/termux-jenkins-automation
+cd <path-to-your-cloned-repo>
 ansible -i ansible/inventory/hosts.yaml termux_controller -m ping
 ```
 

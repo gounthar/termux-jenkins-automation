@@ -60,8 +60,10 @@
   failed_when: jenkins_stop_for_plugins.rc not in [0, 1]
 
 - name: Wait for Jenkins to stop completely
-  ansible.builtin.pause:
-    seconds: 5
+  ansible.builtin.wait_for:
+    port: "{{ jenkins_port }}"
+    state: stopped
+    timeout: 60
   when: install_plugins_from_file | bool
 
 - name: Install plugins using jenkins-plugin-manager
@@ -73,7 +75,7 @@
       --verbose
   when: install_plugins_from_file | bool
   register: plugin_install
-  changed_when: plugin_install.rc == 0
+  changed_when: "'Installed' in plugin_install.stdout or 'Updated' in plugin_install.stdout"
   failed_when: plugin_install.rc != 0
 
 - name: Count installed plugins
@@ -99,9 +101,12 @@
   when: install_plugins_from_file | bool
   changed_when: true
 
-- name: Wait for Jenkins process to start
-  ansible.builtin.pause:
-    seconds: 15
+- name: Wait for Jenkins port to be available
+  ansible.builtin.wait_for:
+    port: "{{ jenkins_port }}"
+    state: started
+    delay: 5
+    timeout: 60
   when: install_plugins_from_file | bool
 
 - name: Wait for Jenkins to restart
