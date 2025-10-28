@@ -119,15 +119,20 @@ sshd
 # 1. Check Ansible installation
 ansible --version
 
-# 2. Generate SSH key (if not exists)
-ls ~/.ssh/termux_ed25519 || ssh-keygen -t ed25519 -f ~/.ssh/termux_ed25519 -N ""
+# 2. Check if SSH key exists (skip generation if it does)
+ls -la ~/.ssh/termux_ed25519
+# If it exists, you'll see: -rw------- 1 user user 411 ... termux_ed25519
+# If not found, generate it:
+ssh-keygen -t ed25519 -f ~/.ssh/termux_ed25519 -N ""
 
 # 3. Copy SSH key to phone
-ssh-copy-id -p 8022 -i ~/.ssh/termux_ed25519 <PHONE_IP>
-# You'll need to enter password (default: no password, just press Enter)
+# NOTE: Use -o IdentitiesOnly=yes to avoid "Too many authentication failures"
+ssh-copy-id -o IdentitiesOnly=yes -p 8022 -i ~/.ssh/termux_ed25519 192.168.1.53
+# Enter the password you set earlier with 'passwd'
 
-# 4. Test SSH connection
-ssh -p 8022 -i ~/.ssh/termux_ed25519 <PHONE_IP> "whoami"
+# 4. Test SSH connection (should NOT ask for password now)
+ssh -p 8022 -i ~/.ssh/termux_ed25519 -o IdentitiesOnly=yes 192.168.1.53 "whoami"
+# Expected output: u0_a556
 ```
 
 **Results:**
