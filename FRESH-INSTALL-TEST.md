@@ -10,8 +10,8 @@ Follow the README.md Quick Start exactly as a new user would, documenting each s
 # Run from laptop/PC
 ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/backup-jenkins.yaml
 ```
-- [ ] Backup created in `ansible/playbooks/backups/`
-- [ ] Note backup filename: `jenkins-<timestamp>.tar.gz`
+- [X] Backup created in `ansible/playbooks/backups/`
+- [X] Note backup filename: `jenkins-<timestamp>.tar.gz`
 
 ### 2. Document Current State
 - Current Jenkins URL: http://192.168.1.53:8080
@@ -22,7 +22,7 @@ ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/backup-jenkin
 ### 3. Wipe Phone
 **On Android device:**
 - [ ] Option A: Clear Termux app data (Settings > Apps > Termux > Storage > Clear Data)
-- [ ] Option B: Uninstall and reinstall Termux from GitHub Releases
+- [X] Option B: Uninstall and reinstall Termux from GitHub Releases
 
 ---
 
@@ -37,15 +37,15 @@ ansible-playbook -i ansible/inventory/hosts.yaml ansible/playbooks/backup-jenkin
 # In Termux on Android phone
 pkg update && pkg upgrade
 ```
-- [ ] Commands completed without errors
-- [ ] Note any warnings or issues:
+- [X] Commands completed without errors
+- [X] Note any warnings or issues:
 
 ### 1.2 Install OpenSSH and Python
 ```bash
 # In Termux
 pkg install openssh python
 ```
-- [ ] Installation successful
+- [X] Installation successful
 - [ ] Note message about ssh-agent and termux-services (expected)
 - [ ] Any unexpected errors:
 
@@ -54,15 +54,15 @@ pkg install openssh python
 # In Termux
 sshd
 ```
-- [ ] sshd started without errors
-- [ ] Verify: `pgrep sshd` returns a PID
+- [X] sshd started without errors
+- [X] Verify: `pgrep sshd` returns a PID
 
 ### 1.4 Set Password
 ```bash
 # In Termux
 passwd
 ```
-- [ ] Password set (use: poddingue)
+- [X] Password set (use: poddingue)
 
 ### 1.5 Get Username and IP
 ```bash
@@ -70,9 +70,9 @@ passwd
 whoami          # Expected: u0_a557
 ifconfig wlan0  # Expected: 192.168.1.53
 ```
-- [ ] Username: __________
-- [ ] IP Address: __________
-- [ ] Match expected values: YES / NO
+- [X] Username: u0_a558_____
+- [X] IP Address: 192.168.1.53
+- [X] Match expected values: YES / NO
 
 ---
 
@@ -93,8 +93,8 @@ ssh-keygen -t ed25519 -f ~/.ssh/termux_ed25519 -N ""
 # On laptop
 cat ~/.ssh/termux_ed25519.pub
 ```
-- [ ] Public key displayed
-- [ ] Copy the entire output
+- [X] Public key displayed
+- [X] Copy the entire output
 
 ### 2.3 Add Public Key to Termux (Phone)
 ```bash
@@ -103,17 +103,26 @@ mkdir -p ~/.ssh && chmod 700 ~/.ssh
 echo 'YOUR_PUBLIC_KEY_HERE' >> ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 ```
-- [ ] Commands completed
-- [ ] Verify: `cat ~/.ssh/authorized_keys` shows your key
+- [X] Commands completed
+- [X] Verify: `cat ~/.ssh/authorized_keys` shows your key
 
 ### 2.4 Test SSH Connection (Laptop)
 ```bash
 # On laptop - manual test before automation
-ssh -i ~/.ssh/termux_ed25519 -p 8022 u0_a557@192.168.1.53 "echo 'SSH works'"
+# Use -o IdentitiesOnly=yes to prevent "Too many authentication failures"
+ssh -i ~/.ssh/termux_ed25519 -o IdentitiesOnly=yes -p 8022 u0_a557@192.168.1.53 "echo 'SSH works'"
 ```
 - [ ] Connection successful
 - [ ] Output: "SSH works"
 - [ ] Any errors:
+
+**If you get "Too many authentication failures":**
+```bash
+# This happens when SSH tries too many keys from your ssh-agent
+# Solution: Use IdentitiesOnly option (already in command above)
+# Or temporarily disable ssh-agent:
+ssh -i ~/.ssh/termux_ed25519 -o IdentitiesOnly=yes -o PubkeyAuthentication=yes -p 8022 u0_a557@192.168.1.53 "echo 'SSH works'"
+```
 
 ---
 
