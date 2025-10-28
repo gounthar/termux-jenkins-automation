@@ -115,6 +115,12 @@
   delay: "{{ config_wait_delay }}"
   when: install_plugins_from_file | bool
 
+- name: Wait for plugins to be extracted
+  ansible.builtin.pause:
+    seconds: 30
+    prompt: "Waiting for Jenkins to extract all plugins..."
+  when: install_plugins_from_file | bool
+
 - name: Reload JCasC configuration
   ansible.builtin.uri:
     url: "http://localhost:{{ jenkins_port }}/configuration-as-code/reload"
