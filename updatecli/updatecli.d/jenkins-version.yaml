@@ -16,17 +16,16 @@ scms:
 sources:
   jenkinsLTS:
     name: "Latest Jenkins LTS Version"
-    kind: json
+    kind: jenkins
     spec:
-      file: https://updates.jenkins.io/tiers.json
-      key: "stableCores.[0]"
+      release: stable
 
   currentJenkinsVersion:
     name: "Get current Jenkins version"
     kind: yaml
     spec:
       file: ansible/inventory/group_vars/termux.yaml
-      key: jenkins_version
+      key: $.jenkins_version
 
 conditions:
   checkJenkinsLTSVersion:
