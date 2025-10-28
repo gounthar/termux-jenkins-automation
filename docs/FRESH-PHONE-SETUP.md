@@ -168,13 +168,27 @@ phone1:
 
 ### Step 4: Test Ansible Connection ⏳
 
+**IMPORTANT NOTE**: This test will likely **FAIL** on a fresh phone because Python is not installed yet. This is EXPECTED and NORMAL.
+
 **Command:**
 ```bash
 cd /mnt/c/support/users/talks/2025/termux/termux-jenkins-automation
 ansible -i ansible/inventory/hosts.yaml termux_controller -m ping
 ```
 
-**Expected output:**
+**Expected output on fresh phone (Python not installed yet):**
+```
+phone1 | FAILED! => {
+    "msg": "The module interpreter '/data/data/com.termux/files/usr/bin/python' was not found."
+}
+```
+
+**What this means:**
+- ✅ SSH connection is working (if you see this error)
+- ✅ Ansible can reach the phone
+- ❌ Python is not installed yet (will be installed in Phase 1 of automation)
+
+**After automation completes, you should see:**
 ```
 phone1 | SUCCESS => {
     "changed": false,
@@ -183,7 +197,9 @@ phone1 | SUCCESS => {
 ```
 
 **Results:**
-- [ ] Ansible ping successful: [ ]
+- [x] Ansible test run: **FAILED (as expected - Python not installed)**
+- [x] SSH connection verified: **Working**
+- [ ] Python installation pending: **Will be installed by automation**
 
 ---
 
