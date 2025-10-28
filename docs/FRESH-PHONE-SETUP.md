@@ -69,29 +69,27 @@ sshd
 whoami
 # Expected output: u0_a### (e.g., u0_a556)
 
-# 8. Get IP address - try these methods in order:
-# Method 1: Using ifconfig (usually pre-installed)
-ifconfig wlan0 | grep "inet "
-
-# Method 2: If ifconfig not available, install iproute2
-pkg install iproute2
-ip addr show wlan0 | grep "inet "
-
-# Method 3: Using termux-api (if Termux:API installed)
-termux-wifi-connectioninfo | grep '"ip"'
-
-# Expected output: inet 192.168.x.x or similar
+# 8. Get IP address
+# Just run ifconfig without filtering - easier to read
+ifconfig
+# Look for the "inet" line under wlan0
+# Example output:
+#   wlan0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+#           inet 192.168.1.53  netmask 255.255.255.0  broadcast 192.168.1.255
+#
+# NOTE: You'll see "Warning: cannot open /proc/net/dev" - this is NORMAL in Termux
+# Just ignore the warning and look for the inet line with your IP address
 ```
 
 **Results:**
-- [ ] Mirror selected (region): _____________
-- [ ] pkg update completed: [ ]
-- [ ] pkg upgrade completed: [ ]
-- [ ] openssh installed: [ ]
-- [ ] Password set: [ ]
-- [ ] SSH server started: [ ]
-- [ ] User ID: u0_a556 ✓
-- [ ] Phone IP: _____________
+- [x] Mirror selected (region): _____________
+- [x] pkg update completed
+- [x] pkg upgrade completed
+- [x] openssh installed
+- [x] Password set
+- [ ] SSH server started: [ ] ← **NEXT: Run `sshd` on phone**
+- [x] User ID: **u0_a556**
+- [x] Phone IP: **192.168.1.53**
 
 **Troubleshooting Tips:**
 - If `pkg update` is slow or times out, run `termux-change-repo` again and try a different mirror
