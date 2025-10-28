@@ -51,13 +51,12 @@
   delay: 10
   when: install_plugins_from_file | bool
 
-- name: Stop Jenkins before plugin installation
-  ansible.builtin.shell:
-    cmd: pkill -f "java.*jenkins.war"
+- name: Stop Jenkins service before plugin installation
+  ansible.builtin.command: sv down jenkins
   register: jenkins_stop_for_plugins
   when: install_plugins_from_file | bool
-  changed_when: jenkins_stop_for_plugins.rc == 0
-  failed_when: jenkins_stop_for_plugins.rc not in [0, 1]
+  changed_when: "'down:' in jenkins_stop_for_plugins.stdout or 'ok:' in jenkins_stop_for_plugins.stdout"
+  failed_when: false
 
 - name: Wait for Jenkins to stop completely
   ansible.builtin.wait_for:
@@ -93,13 +92,11 @@
       - "Installation output available for debugging"
   when: install_plugins_from_file | bool
 
-- name: Start Jenkins with new plugins
-  ansible.builtin.shell:
-    cmd: "nohup {{ java_bin }} -jar {{ jenkins_war }} --httpPort={{ jenkins_port }} >> {{ jenkins_home }}/logs/jenkins.log 2>&1 &"
-  async: 10
-  poll: 0
+- name: Start Jenkins service with new plugins
+  ansible.builtin.command: sv up jenkins
   when: install_plugins_from_file | bool
-  changed_when: true
+  register: jenkins_start_after_plugins
+  changed_when: "'run:' in jenkins_start_after_plugins.stdout or 'ok:' in jenkins_start_after_plugins.stdout"
 
 - name: Wait for Jenkins port to be available
   ansible.builtin.wait_for:
