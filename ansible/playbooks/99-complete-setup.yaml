@@ -23,7 +23,8 @@
           - "  3. Configure Jenkins agent with build tools"
           - "  4. Apply Jenkins Configuration as Code"
           - "  5. Configure auto-start on boot (optional)"
-          - "  6. Check for job backups to restore (optional)"
+          - "  6. Deploy notification scripts (celebrate.sh, jenkins-talking.sh)"
+          - "  7. Check for job backups to restore (optional)"
           - ""
           - "Estimated time: 10-15 minutes"
           - "Press Ctrl+C to cancel, or wait to continue..."
@@ -47,7 +48,10 @@
 - name: Phase 5 - Configure boot auto-start
   ansible.builtin.import_playbook: 05-configure-boot.yaml
 
-- name: Phase 6 - Restore jobs from backup
+- name: Phase 6 - Deploy notification scripts
+  ansible.builtin.import_playbook: 06-deploy-notification-scripts.yaml
+
+- name: Phase 7 - Restore jobs from backup
   ansible.builtin.import_playbook: restore-jenkins-jobs.yaml
 
 - name: Final summary
