@@ -45,15 +45,22 @@
           - --transform
           - "s|^[^/]*/||"
 
-    - name: Reload Jenkins configuration
+    - name: Restart Jenkins service to load restored jobs
+      command: sv restart {{ termux_usr }}/var/service/jenkins
+      register: restart_result
+      failed_when: false
+      vars:
+        termux_usr: "/data/data/com.termux/files/usr"
+
+    - name: Wait for Jenkins to restart
       uri:
-        url: "http://localhost:8080/reload"
-        method: POST
-        user: admin
-        password: admin
-        force_basic_auth: yes
-        status_code: 200,302
-      register: reload_result
+        url: "http://localhost:8080"
+        status_code: [200, 403]
+        timeout: 5
+      register: jenkins_check
+      until: jenkins_check.status in [200, 403]
+      retries: 24
+      delay: 5
       failed_when: false
 
     - name: Display restoration summary
@@ -61,4 +68,5 @@
         msg:
           - "Jobs restoration completed!"
           - "Backup: {{ latest_backup.path | basename }}"
-          - "Jenkins reload: {{ 'Success' if reload_result.status == 200 or reload_result.status == 302 else 'Failed (manual reload may be needed)' }}"
+          - "Jenkins restart: {{ 'Success' if restart_result.rc == 0 else 'Check service status manually' }}"
+          - "Jobs will appear in Jenkins UI after restart completes (~1-2 minutes)"
