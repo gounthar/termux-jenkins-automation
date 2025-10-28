@@ -9,7 +9,7 @@ termux_usr: /data/data/com.termux/files/usr
 termux_bin: /data/data/com.termux/files/usr/bin
 
 # Jenkins configuration
-jenkins_version: 2.479.1  # LTS version
+jenkins_version: 2.528.1
 jenkins_port: 8080
 jenkins_home: "{{ termux_home }}/.jenkins"
 jenkins_war: "{{ jenkins_home }}/jenkins.war"
@@ -23,7 +23,7 @@ jenkins_agent_user: "{{ ansible_user }}"
 jenkins_agent_port: 8022
 
 # SSH configuration
-ssh_port: 8022  # Termux SSH daemon port
+ssh_port: 8022 # Termux SSH daemon port
 ssh_key_type: ed25519
 ssh_key_path: "{{ termux_home }}/.ssh"
 
@@ -33,8 +33,8 @@ nodejs_version: latest
 git_version: latest
 
 # Resource limits
-jenkins_memory_mb: 512  # Minimal memory for Jenkins
-max_executors: 2  # Max concurrent builds on agent
+jenkins_memory_mb: 512 # Minimal memory for Jenkins
+max_executors: 2 # Max concurrent builds on agent
 
 # JCasC configuration
 jcasc_config_path: "{{ jenkins_home }}/jenkins.yaml"
