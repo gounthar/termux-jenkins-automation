@@ -69,7 +69,7 @@
     {{ java_bin }} -jar {{ jenkins_home }}/jenkins-plugin-manager.jar \
       --war {{ jenkins_war }} \
       --plugin-file {{ plugins_file_dest }} \
-      --plugins-dir {{ jenkins_home }}/plugins \
+      --plugin-download-directory {{ jenkins_home }}/plugins \
       --verbose
   when: install_plugins_from_file | bool
   register: plugin_install
