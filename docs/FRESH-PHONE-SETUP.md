@@ -31,41 +31,57 @@ October 28, 2025
 ### Step 1: Initial Termux Configuration ⏳
 
 **What we need:**
-1. Update package repositories
-2. Install OpenSSH
-3. Get phone IP and user ID
-4. Start SSH server
+1. Select optimal package mirror
+2. Update package repositories
+3. Install OpenSSH
+4. Get phone IP and user ID
+5. Start SSH server
 
 **Commands to run ON THE PHONE:**
 ```bash
-# 1. Update package repositories (this may take a few minutes)
+# 1. Select best mirror for your location (IMPORTANT!)
+termux-change-repo
+# This will show a menu:
+#   - Use arrow keys to navigate
+#   - Select "Mirrors in <Your Region>" (e.g., Europe, Asia, Americas)
+#   - Press Space to select, Enter to confirm
+#   - This ensures fast downloads and avoids timeouts
+
+# 2. Update package repositories (this may take a few minutes)
 pkg update
 
-# 2. Upgrade existing packages (recommended for fresh install)
+# 3. Upgrade existing packages (recommended for fresh install)
 pkg upgrade
+# Press Y or Enter when prompted to confirm
 
-# 3. Install OpenSSH server
+# 4. Install OpenSSH server
 pkg install openssh
 
-# 4. Start SSH server
+# 5. Start SSH server
 sshd
 
-# 5. Get user ID
+# 6. Get user ID
 whoami
 # Expected output: u0_a### (e.g., u0_a504)
 
-# 6. Get IP address
+# 7. Get IP address
 ip addr show wlan0 | grep "inet "
 # Expected output: inet 192.168.x.x/24 ...
 ```
 
 **Results:**
+- [ ] Mirror selected (region): _____________
 - [ ] pkg update completed: [ ]
 - [ ] pkg upgrade completed: [ ]
 - [ ] openssh installed: [ ]
 - [ ] SSH server started: [ ]
 - [ ] Phone IP: _____________
 - [ ] User ID: _____________
+
+**Troubleshooting Tips:**
+- If `pkg update` is slow or times out, run `termux-change-repo` again and try a different mirror
+- Some regions have faster mirrors than others
+- The automation playbook will also configure repositories, but starting with a good mirror helps
 
 ---
 
