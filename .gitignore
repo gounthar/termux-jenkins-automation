@@ -63,6 +63,8 @@ temp/
 CONTEXT.md
 PROGRESS.md
 CLAUDE.md
+journal/
+.last_article_timestamp
 
 # Test artifacts
 .pytest_cache/

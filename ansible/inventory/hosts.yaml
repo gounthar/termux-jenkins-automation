@@ -20,7 +20,7 @@ all:
             phone1: &phone1_config
               ansible_host: 192.168.1.53  # Fresh install - CloudNord demo
               ansible_port: 8022
-              ansible_user: u0_a556  # From whoami command
+              ansible_user: u0_a557  # From whoami command
               ansible_connection: ssh
               ansible_ssh_private_key_file: ~/.ssh/termux_ed25519
               ansible_ssh_common_args: '-o IdentitiesOnly=yes'
