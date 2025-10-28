@@ -57,16 +57,30 @@ pkg upgrade
 # 4. Install OpenSSH server
 pkg install openssh
 
-# 5. Start SSH server
+# 5. Set a password for SSH login (IMPORTANT!)
+passwd
+# Enter and confirm a strong password
+# This password will be needed for SSH key setup
+
+# 6. Start SSH server
 sshd
 
-# 6. Get user ID
+# 7. Get user ID
 whoami
-# Expected output: u0_a### (e.g., u0_a504)
+# Expected output: u0_a### (e.g., u0_a556)
 
-# 7. Get IP address
+# 8. Get IP address - try these methods in order:
+# Method 1: Using ifconfig (usually pre-installed)
+ifconfig wlan0 | grep "inet "
+
+# Method 2: If ifconfig not available, install iproute2
+pkg install iproute2
 ip addr show wlan0 | grep "inet "
-# Expected output: inet 192.168.x.x/24 ...
+
+# Method 3: Using termux-api (if Termux:API installed)
+termux-wifi-connectioninfo | grep '"ip"'
+
+# Expected output: inet 192.168.x.x or similar
 ```
 
 **Results:**
@@ -74,9 +88,10 @@ ip addr show wlan0 | grep "inet "
 - [ ] pkg update completed: [ ]
 - [ ] pkg upgrade completed: [ ]
 - [ ] openssh installed: [ ]
+- [ ] Password set: [ ]
 - [ ] SSH server started: [ ]
+- [ ] User ID: u0_a556 ✓
 - [ ] Phone IP: _____________
-- [ ] User ID: _____________
 
 **Troubleshooting Tips:**
 - If `pkg update` is slow or times out, run `termux-change-repo` again and try a different mirror
