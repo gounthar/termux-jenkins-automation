@@ -31,29 +31,41 @@ October 28, 2025
 ### Step 1: Initial Termux Configuration ⏳
 
 **What we need:**
-1. Phone IP address
-2. Termux user ID (from `whoami` command)
-3. SSH server running on phone
+1. Update package repositories
+2. Install OpenSSH
+3. Get phone IP and user ID
+4. Start SSH server
 
 **Commands to run ON THE PHONE:**
 ```bash
-# 1. Start SSH server
+# 1. Update package repositories (this may take a few minutes)
+pkg update
+
+# 2. Upgrade existing packages (recommended for fresh install)
+pkg upgrade
+
+# 3. Install OpenSSH server
+pkg install openssh
+
+# 4. Start SSH server
 sshd
 
-# 2. Get user ID
+# 5. Get user ID
 whoami
 # Expected output: u0_a### (e.g., u0_a504)
 
-# 3. Get IP address
-ifconfig wlan0 | grep inet
-# Or simpler:
+# 6. Get IP address
 ip addr show wlan0 | grep "inet "
+# Expected output: inet 192.168.x.x/24 ...
 ```
 
 **Results:**
+- [ ] pkg update completed: [ ]
+- [ ] pkg upgrade completed: [ ]
+- [ ] openssh installed: [ ]
+- [ ] SSH server started: [ ]
 - [ ] Phone IP: _____________
 - [ ] User ID: _____________
-- [ ] SSH server running: [ ]
 
 ---
 
