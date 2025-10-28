@@ -14,7 +14,7 @@
       - ""
 
 - name: Check if Termux:Boot Android app is installed
-  ansible.builtin.shell: pm list packages | grep -q '^package:com.termux.boot$'
+  ansible.builtin.shell: /system/bin/pm list packages | grep -q '^package:com.termux.boot$'
   register: termux_boot_check
   changed_when: false
   failed_when: false
