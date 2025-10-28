@@ -110,7 +110,7 @@
 
 - name: Create Jenkins service run script
   ansible.builtin.template:
-    src: jenkins-service.sh.j2
+    src: jenkins-run.sh.j2
     dest: "{{ termux_home }}/.termux/sv/{{ jenkins_service_name }}/run"
     mode: "0755"
   when: jenkins_service_enabled | bool

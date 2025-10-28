@@ -96,7 +96,7 @@
   ansible.builtin.command: sv up {{ termux_usr }}/var/service/jenkins
   when: install_plugins_from_file | bool
   register: jenkins_start_after_plugins
-  changed_when: "'run:' in jenkins_start_after_plugins.stdout"
+  changed_when: "'run:' in jenkins_start_after_plugins.stdout or 'ok:' in jenkins_start_after_plugins.stdout"
 
 - name: Wait for Jenkins port to be available
   ansible.builtin.wait_for:
