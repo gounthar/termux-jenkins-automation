@@ -122,10 +122,18 @@
     mode: "0755"
   when: jenkins_service_enabled | bool
 
-- name: Enable Jenkins service
-  ansible.builtin.command: sv-enable {{ jenkins_service_name }}
-  args:
-    creates: "{{ termux_usr }}/var/service/{{ jenkins_service_name }}"
+- name: Ensure service directory exists
+  ansible.builtin.file:
+    path: "{{ termux_usr }}/var/service"
+    state: directory
+    mode: "0755"
+  when: jenkins_service_enabled | bool
+
+- name: Enable Jenkins service (create symlink)
+  ansible.builtin.file:
+    src: "{{ termux_home }}/.termux/sv/{{ jenkins_service_name }}"
+    dest: "{{ termux_usr }}/var/service/{{ jenkins_service_name }}"
+    state: link
   when: jenkins_service_enabled | bool
   register: jenkins_service_enabled_result
 
