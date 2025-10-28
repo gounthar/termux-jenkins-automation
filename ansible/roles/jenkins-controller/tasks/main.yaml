@@ -137,11 +137,35 @@
   when: jenkins_service_enabled | bool
   register: jenkins_service_enabled_result
 
+- name: Check if runsvdir is running
+  ansible.builtin.shell: pgrep -f runsvdir
+  register: runsvdir_check
+  changed_when: false
+  failed_when: false
+  when: jenkins_service_enabled | bool
+
+- name: Start runsvdir if not running
+  ansible.builtin.shell: |
+    nohup {{ termux_usr }}/bin/runsvdir {{ termux_usr }}/var/service > /dev/null 2>&1 &
+    sleep 2
+  when:
+    - jenkins_service_enabled | bool
+    - runsvdir_check.rc != 0
+  register: runsvdir_start
+
+- name: Wait for runsvdir to initialize service
+  ansible.builtin.pause:
+    seconds: 3
+  when:
+    - jenkins_service_enabled | bool
+    - runsvdir_check.rc != 0
+
 - name: Start Jenkins service
   ansible.builtin.command: sv up {{ termux_usr }}/var/service/{{ jenkins_service_name }}
   when: jenkins_service_enabled | bool
   register: jenkins_start
   changed_when: "'run:' in jenkins_start.stdout or 'ok:' in jenkins_start.stdout"
+  failed_when: false
 
 - name: Wait for Jenkins to start
   ansible.builtin.uri:
