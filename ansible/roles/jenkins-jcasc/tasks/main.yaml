@@ -42,49 +42,72 @@
     mode: "0644"
   when: install_plugins_from_file | bool
 
-- name: Install plugins from plugins.txt
-  ansible.builtin.shell: |
-    while IFS=: read -r plugin version || [ -n "$plugin" ]; do
-      # Skip comments and empty lines
-      [[ "$plugin" =~ ^#.*$ ]] || [[ -z "$plugin" ]] && continue
-
-      echo "Installing plugin: $plugin:$version"
-      {{ java_bin }} -jar {{ jenkins_cli_jar }} \
-        -s http://localhost:{{ jenkins_port }}/ \
-        -auth {{ jenkins_admin_user }}:{{ jenkins_admin_password }} \
-        install-plugin "$plugin:$version" || true
-    done < {{ plugins_file_dest }}
+- name: Download jenkins-plugin-manager tool
+  ansible.builtin.get_url:
+    url: "https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/{{ plugin_manager_version }}/jenkins-plugin-manager-{{ plugin_manager_version }}.jar"
+    dest: "{{ jenkins_home }}/jenkins-plugin-manager.jar"
+    mode: "0644"
+  retries: 3
+  delay: 10
   when: install_plugins_from_file | bool
-  register: plugin_install
-  changed_when: "'Installing' in plugin_install.stdout"
 
-- name: Stop Jenkins to prepare for restart
+- name: Stop Jenkins before plugin installation
   ansible.builtin.shell:
     cmd: pkill -f "java.*jenkins.war"
-  register: jenkins_stop
-  when: plugin_install is changed
-  changed_when: jenkins_stop.rc == 0
-  failed_when: jenkins_stop.rc not in [0, 1]
-  # rc=0: process found and killed successfully
-  # rc=1: no matching process found (already stopped)
+  register: jenkins_stop_for_plugins
+  when: install_plugins_from_file | bool
+  changed_when: jenkins_stop_for_plugins.rc == 0
+  failed_when: jenkins_stop_for_plugins.rc not in [0, 1]
 
-- name: Wait for Jenkins to stop
-  ansible.builtin.pause:
-    seconds: 3
-  when: plugin_install is changed
+- name: Wait for Jenkins to stop completely
+  ansible.builtin.wait_for:
+    port: "{{ jenkins_port }}"
+    state: stopped
+    timeout: 60
+  when: install_plugins_from_file | bool
+
+- name: Install plugins using jenkins-plugin-manager
+  ansible.builtin.shell: |
+    {{ java_bin }} -jar {{ jenkins_home }}/jenkins-plugin-manager.jar \
+      --war {{ jenkins_war }} \
+      --plugin-file {{ plugins_file_dest }} \
+      --plugin-download-directory {{ jenkins_home }}/plugins \
+      --verbose
+  when: install_plugins_from_file | bool
+  register: plugin_install
+  changed_when: "'Installed' in plugin_install.stdout or 'Updated' in plugin_install.stdout"
+  failed_when: plugin_install.rc != 0
+
+- name: Count installed plugins
+  ansible.builtin.find:
+    paths: "{{ jenkins_home }}/plugins"
+    patterns: "*.jpi"
+  register: installed_plugins
+  when: install_plugins_from_file | bool
+
+- name: Display plugin installation results
+  ansible.builtin.debug:
+    msg:
+      - "Plugin installation complete!"
+      - "Plugins installed: {{ installed_plugins.matched | default(0) }}"
+      - "Installation output available for debugging"
+  when: install_plugins_from_file | bool
 
 - name: Start Jenkins with new plugins
   ansible.builtin.shell:
     cmd: "nohup {{ java_bin }} -jar {{ jenkins_war }} --httpPort={{ jenkins_port }} >> {{ jenkins_home }}/logs/jenkins.log 2>&1 &"
   async: 10
   poll: 0
-  when: plugin_install is changed
+  when: install_plugins_from_file | bool
   changed_when: true
 
-- name: Wait for Jenkins process to start
-  ansible.builtin.pause:
-    seconds: 10
-  when: plugin_install is changed
+- name: Wait for Jenkins port to be available
+  ansible.builtin.wait_for:
+    port: "{{ jenkins_port }}"
+    state: started
+    delay: 5
+    timeout: 60
+  when: install_plugins_from_file | bool
 
 - name: Wait for Jenkins to restart
   ansible.builtin.uri:
@@ -95,7 +118,13 @@
   until: jenkins_restarted.status == 200
   retries: "{{ config_wait_timeout // config_wait_delay }}"
   delay: "{{ config_wait_delay }}"
-  when: plugin_install is changed
+  when: install_plugins_from_file | bool
+
+- name: Wait for plugins to be extracted
+  ansible.builtin.pause:
+    seconds: 30
+    prompt: "Waiting for Jenkins to extract all plugins..."
+  when: install_plugins_from_file | bool
 
 - name: Reload JCasC configuration
   ansible.builtin.uri:

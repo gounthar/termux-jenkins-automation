@@ -13,6 +13,7 @@ jcasc_reload_token: "{{ lookup('env', 'JCASC_RELOAD_TOKEN') | default('changeme-
 plugins_file_source: "{{ playbook_dir }}/../../jcasc/plugins.txt"
 plugins_file_dest: "{{ jenkins_home }}/plugins.txt"
 install_plugins_from_file: true
+plugin_manager_version: "2.13.0"  # jenkins-plugin-manager tool version
 
 # Sample jobs
 deploy_sample_jobs: true
