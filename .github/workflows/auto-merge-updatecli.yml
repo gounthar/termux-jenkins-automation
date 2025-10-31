@@ -7,6 +7,8 @@ on:
     types: [submitted]
   check_suite:
     types: [completed]
+  # Note: Broad status trigger may cause frequent workflow runs.
+  # Consider narrowing if GitHub Actions minutes become a concern.
   status: {}
 
 jobs:
@@ -36,7 +38,6 @@ jobs:
             PR_NUMBER="${{ github.event.pull_request.number }}"
             echo "Found PR from pull_request_review event: #$PR_NUMBER"
           else
-            # For check_suite/status events, find the PR from the branch or commit SHA
             # For check_suite/status events, find the PR from the branch or commit SHA
             if [ "${{ github.event_name }}" = "check_suite" ]; then
               HEAD_REF="${{ github.event.check_suite.head_branch }}"
@@ -121,6 +122,9 @@ jobs:
           PR_NUMBER="${{ steps.check_pr.outputs.pr_number }}"
           echo "Waiting for status checks to complete for PR #$PR_NUMBER..."
 
+          # Define filter to exclude optional checks (DRY principle)
+          EXCLUDE_FILTER='select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge")'
+
           # 60 attempts × 10 seconds = 10 minutes (5 min buffer before job timeout)
           max_attempts=60
           attempt=0
@@ -130,9 +134,9 @@ jobs:
             CHECK_DATA=$(gh pr view "$PR_NUMBER" --json statusCheckRollup --repo ${{ github.repository }})
 
             # Count checks (excluding optional GitGuardian, CodeRabbit, Gemini and the auto-merge check itself)
-            total_checks=$(echo "$CHECK_DATA" | jq '[.statusCheckRollup[] | select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge")] | length')
-            pending_checks=$(echo "$CHECK_DATA" | jq '[.statusCheckRollup[] | select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge") | select(.status == "IN_PROGRESS" or .status == "QUEUED" or (.state // "" | test("PENDING|EXPECTED")))] | length')
-            failed_checks=$(echo "$CHECK_DATA" | jq '[.statusCheckRollup[] | select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge") | select(.conclusion == "FAILURE" or (.state // "" | test("FAILURE|ERROR")))] | length')
+            total_checks=$(echo "$CHECK_DATA" | jq "[.statusCheckRollup[] | $EXCLUDE_FILTER] | length")
+            pending_checks=$(echo "$CHECK_DATA" | jq "[.statusCheckRollup[] | $EXCLUDE_FILTER | select(.status == \"IN_PROGRESS\" or .status == \"QUEUED\" or (.state // \"\" | test(\"PENDING|EXPECTED\")))] | length")
+            failed_checks=$(echo "$CHECK_DATA" | jq "[.statusCheckRollup[] | $EXCLUDE_FILTER | select(.conclusion == \"FAILURE\" or (.state // \"\" | test(\"FAILURE|ERROR\")))] | length")
 
             echo "Checks: $total_checks total, $pending_checks pending, $failed_checks failed"
 
@@ -182,13 +186,16 @@ jobs:
             exit 1
           fi
 
+          # Define filter to exclude optional checks (same as wait step)
+          EXCLUDE_FILTER='select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge")'
+
           # Double-check all status checks are passing (excluding optional checks)
           CHECK_DATA=$(gh pr view "$PR_NUMBER" --json statusCheckRollup --repo ${{ github.repository }})
-          failed_checks=$(echo "$CHECK_DATA" | jq '[(.statusCheckRollup // [])[] | select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge") | select((.conclusion // "") == "FAILURE" or (.state // "" | test("FAILURE|ERROR")))] | length')
+          failed_checks=$(echo "$CHECK_DATA" | jq "[(.statusCheckRollup // [])[] | $EXCLUDE_FILTER | select((.conclusion // \"\") == \"FAILURE\" or (.state // \"\" | test(\"FAILURE|ERROR\")))] | length")
 
           if [ "$failed_checks" -gt 0 ]; then
             echo "❌ Found $failed_checks failed check(s), aborting merge"
-            echo "$CHECK_DATA" | jq -r '(.statusCheckRollup // [])[] | select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge") | select((.conclusion // "") == "FAILURE" or (.state // "" | test("FAILURE|ERROR"))) | "  - \(.name): \(.conclusion // .state)"'
+            echo "$CHECK_DATA" | jq -r "[(.statusCheckRollup // [])[] | $EXCLUDE_FILTER | select((.conclusion // \"\") == \"FAILURE\" or (.state // \"\" | test(\"FAILURE|ERROR\")))] | .[] | \"  - \(.name): \(.conclusion // .state)\""
             exit 1
           fi
 
