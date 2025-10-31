@@ -25,7 +25,7 @@ This repository provides a turnkey Ansible-based automation that:
   - **Termux:API** - Enables Android device API access (battery, location, notifications, etc.)
     - [GitHub](https://github.com/termux/termux-api/releases) (Latest: [vv0.53.0](https://github.com/termux/termux-api/releases/tag/vv0.53.0)) | [F-Droid](https://f-droid.org/packages/com.termux.api/)
   - **Termux:Boot** - Auto-start Jenkins on device boot (hands-free operation)
-    - [GitHub](https://github.com/termux/termux-boot/releases) (Latest: [v0.8.1](https://github.com/termux/termux-boot/releases/tag/v0.8.1)) | [F-Droid](https://f-droid.org/packages/com.termux.boot/)
+    - [GitHub](https://github.com/termux/termux-boot/releases) (Latest: [vv0.8.1](https://github.com/termux/termux-boot/releases/tag/vv0.8.1)) | [F-Droid](https://f-droid.org/packages/com.termux.boot/)
     - **Why needed**: Without Termux:Boot, Jenkins must be started manually after each reboot
     - **With Termux:Boot**: ✅ Jenkins starts automatically, ✅ Perfect for demos/production
     - **Configuration**: Automated via `termux-boot-setup` role (optional)
