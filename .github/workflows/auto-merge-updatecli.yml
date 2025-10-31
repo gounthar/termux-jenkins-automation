@@ -1,0 +1,199 @@
+name: Auto-merge UpdateCLI PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
+  status: {}
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: auto-merge-updatecli-${{ github.event.pull_request.number || github.sha }}
+      cancel-in-progress: true
+    permissions:
+      pull-requests: read
+      contents: read
+      checks: read
+    steps:
+      - name: Check PR details
+        id: check_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get PR number from different event types
+          echo "Event type: ${{ github.event_name }}"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            echo "Found PR from pull_request event: #$PR_NUMBER"
+          elif [ "${{ github.event_name }}" = "pull_request_review" ]; then
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            echo "Found PR from pull_request_review event: #$PR_NUMBER"
+          else
+            # For check_suite/status events, find the PR from the branch or commit SHA
+            HEAD_REF="${{ github.event.check_suite.head_branch || github.event.branches[0].name || '' }}"
+            if [ -n "$HEAD_REF" ]; then
+              echo "Searching for PR with head branch: $HEAD_REF"
+              PR_NUMBER=$(gh pr list --head "$HEAD_REF" --json number --jq '.[0].number // empty' --repo ${{ github.repository }})
+            fi
+
+            if [ -z "$PR_NUMBER" ]; then
+              # Fallback: list PRs associated with the commit SHA
+              COMMIT_SHA="${{ github.event.check_suite.head_sha || github.event.sha || github.sha }}"
+              echo "Branch lookup unavailable/failed. Looking up PR by commit: $COMMIT_SHA"
+              PR_NUMBER=$(gh api \
+                -H "Accept: application/vnd.github+json" \
+                repos/${{ github.repository }}/commits/$COMMIT_SHA/pulls \
+                --jq '.[0].number // empty')
+            fi
+
+            if [ -n "$PR_NUMBER" ]; then
+              echo "Found PR from check_suite/status event: #$PR_NUMBER"
+            fi
+          fi
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "⏭️ No PR found for this event, skipping"
+            echo "should_merge=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+          # Get PR details
+          PR_DATA=$(gh pr view "$PR_NUMBER" --json title,author,labels,state --repo ${{ github.repository }})
+          PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
+          PR_AUTHOR=$(echo "$PR_DATA" | jq -r '.author.login')
+          PR_STATE=$(echo "$PR_DATA" | jq -r '.state')
+
+          echo "📋 PR #$PR_NUMBER: '$PR_TITLE' by $PR_AUTHOR (state: $PR_STATE)"
+
+          # Check if this is an automated UpdateCLI PR that should be auto-merged
+          # Match UpdateCLI dependency update patterns
+          AUTO_MERGE_PATTERNS=(
+            "chore(deps): update Jenkins plugins from jenkins-docs"
+            "chore(deps): update Jenkins LTS to"
+            "docs(deps): update Termux application versions in README"
+          )
+
+          SHOULD_MERGE="false"
+          MATCHING_PATTERN=""
+
+          for PATTERN in "${AUTO_MERGE_PATTERNS[@]}"; do
+            if [[ "$PR_TITLE" == "$PATTERN"* ]]; then
+              SHOULD_MERGE="true"
+              MATCHING_PATTERN="$PATTERN"
+              break
+            fi
+          done
+
+          # Verify author is github-actions bot and PR is open
+          if [[ "$SHOULD_MERGE" == "true" ]] && [[ "$PR_AUTHOR" =~ (^|/)github-actions(\[bot\])?$ ]] && [[ "$PR_STATE" == "OPEN" ]]; then
+            echo "should_merge=true" >> $GITHUB_OUTPUT
+            echo "✅ This is an automated UpdateCLI PR matching pattern: '$MATCHING_PATTERN' - will auto-merge if checks pass"
+          else
+            echo "should_merge=false" >> $GITHUB_OUTPUT
+            echo "⏭️ Skipping: Not an automated UpdateCLI PR"
+            echo "   - Pattern match: $([ "$SHOULD_MERGE" = "true" ] && echo "✅ ('$MATCHING_PATTERN')" || echo "❌ (got: '$PR_TITLE')")"
+            echo "   - Author match: $([[ "$PR_AUTHOR" =~ (^|/)github-actions(\[bot\])?$ ]] && echo "✅" || echo "❌ (got: '$PR_AUTHOR')")"
+            echo "   - State match: $([ "$PR_STATE" = "OPEN" ] && echo "✅" || echo "❌ (got: '$PR_STATE')")"
+          fi
+
+      - name: Wait for status checks
+        if: steps.check_pr.outputs.should_merge == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER="${{ steps.check_pr.outputs.pr_number }}"
+          echo "Waiting for status checks to complete for PR #$PR_NUMBER..."
+
+          max_attempts=60
+          attempt=0
+
+          while [ $attempt -lt $max_attempts ]; do
+            # Get check status
+            CHECK_DATA=$(gh pr view "$PR_NUMBER" --json statusCheckRollup --repo ${{ github.repository }})
+
+            # Count checks (excluding optional GitGuardian, CodeRabbit, Gemini and the auto-merge check itself)
+            total_checks=$(echo "$CHECK_DATA" | jq '[.statusCheckRollup[] | select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge")] | length')
+            pending_checks=$(echo "$CHECK_DATA" | jq '[.statusCheckRollup[] | select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge") | select(.status == "IN_PROGRESS" or .status == "QUEUED" or (.state // "" | test("PENDING|EXPECTED")))] | length')
+            failed_checks=$(echo "$CHECK_DATA" | jq '[.statusCheckRollup[] | select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge") | select(.conclusion == "FAILURE" or (.state // "" | test("FAILURE|ERROR")))] | length')
+
+            echo "Checks: $total_checks total, $pending_checks pending, $failed_checks failed"
+
+            if [ "$failed_checks" -gt 0 ]; then
+              echo "❌ Some checks failed, will not auto-merge"
+              exit 1
+            fi
+
+            if [ "$pending_checks" -eq 0 ] && [ "$total_checks" -gt 0 ]; then
+              echo "✅ All checks passed!"
+              break
+            fi
+
+            attempt=$((attempt + 1))
+            echo "Waiting... (attempt $attempt/$max_attempts)"
+            sleep 10
+          done
+
+          if [ $attempt -eq $max_attempts ]; then
+            echo "⏰ Timeout waiting for checks"
+            exit 1
+          fi
+
+      - name: Final check before merge
+        if: steps.check_pr.outputs.should_merge == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER="${{ steps.check_pr.outputs.pr_number }}"
+          echo "Performing final safety check before merge..."
+
+          # Verify PR is still open
+          PR_STATE=$(gh pr view "$PR_NUMBER" --json state --jq '.state' --repo ${{ github.repository }})
+          if [ "$PR_STATE" != "OPEN" ]; then
+            echo "❌ PR is no longer open (state: $PR_STATE), aborting merge"
+            exit 1
+          fi
+
+          # Verify PR is mergeable (not blocked)
+          MERGE_STATE=$(gh pr view "$PR_NUMBER" --json mergeStateStatus --jq '.mergeStateStatus' --repo ${{ github.repository }})
+          if [ "$MERGE_STATE" != "CLEAN" ] && [ "$MERGE_STATE" != "HAS_HOOKS" ] && [ "$MERGE_STATE" != "UNSTABLE" ]; then
+            echo "❌ PR merge state is $MERGE_STATE (not mergeable), aborting merge"
+            exit 1
+          fi
+
+          # Double-check all status checks are passing (excluding optional checks)
+          CHECK_DATA=$(gh pr view "$PR_NUMBER" --json statusCheckRollup --repo ${{ github.repository }})
+          failed_checks=$(echo "$CHECK_DATA" | jq '[(.statusCheckRollup // [])[] | select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge") | select((.conclusion // "") == "FAILURE" or (.state // "" | test("FAILURE|ERROR")))] | length')
+
+          if [ "$failed_checks" -gt 0 ]; then
+            echo "❌ Found $failed_checks failed check(s), aborting merge"
+            echo "$CHECK_DATA" | jq -r '(.statusCheckRollup // [])[] | select(.name != "GitGuardian Security Checks" and .name != "CodeRabbit" and .name != "Gemini Code Assist" and .name != "auto-merge") | select((.conclusion // "") == "FAILURE" or (.state // "" | test("FAILURE|ERROR"))) | "  - \(.name): \(.conclusion // .state)"'
+            exit 1
+          fi
+
+          echo "✅ All safety checks passed, proceeding with merge"
+
+      - name: Merge PR
+        if: steps.check_pr.outputs.should_merge == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          PR_NUMBER="${{ steps.check_pr.outputs.pr_number }}"
+          echo "🔀 Merging PR #$PR_NUMBER..."
+
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "❌ secrets.PAT_TOKEN is missing or empty. Configure a PAT with repo write permissions."
+            exit 1
+          fi
+
+          gh pr merge "$PR_NUMBER" --squash --delete-branch --repo ${{ github.repository }}
+
+          echo "✅ PR #$PR_NUMBER merged successfully!"
