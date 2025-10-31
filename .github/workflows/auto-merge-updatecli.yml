@@ -37,7 +37,15 @@ jobs:
             echo "Found PR from pull_request_review event: #$PR_NUMBER"
           else
             # For check_suite/status events, find the PR from the branch or commit SHA
-            HEAD_REF="${{ github.event.check_suite.head_branch || github.event.branches[0].name || '' }}"
+            # For check_suite/status events, find the PR from the branch or commit SHA
+            if [ "${{ github.event_name }}" = "check_suite" ]; then
+              HEAD_REF="${{ github.event.check_suite.head_branch }}"
+            elif [ "${{ github.event_name }}" = "status" ]; then
+              HEAD_REF="${{ github.event.branches[0].name }}"
+            else
+              HEAD_REF=""
+            fi
+            
             if [ -n "$HEAD_REF" ]; then
               echo "Searching for PR with head branch: $HEAD_REF"
               PR_NUMBER=$(gh pr list --head "$HEAD_REF" --json number --jq '.[0].number // empty' --repo ${{ github.repository }})
@@ -113,6 +121,7 @@ jobs:
           PR_NUMBER="${{ steps.check_pr.outputs.pr_number }}"
           echo "Waiting for status checks to complete for PR #$PR_NUMBER..."
 
+          # 60 attempts × 10 seconds = 10 minutes (5 min buffer before job timeout)
           max_attempts=60
           attempt=0
 
