@@ -14,29 +14,38 @@ scms:
       branch: "{{ .github.branch }}"
 
 sources:
-  default:
+  termuxApp:
+    name: "Latest Termux App Version"
     kind: githubrelease
     spec:
       owner: "termux"
+      repository: "termux-app"
       token: "{{ requiredEnv .github.token }}"
       versionfilter:
         kind: semver
         pattern: "~0"  # Match any 0.x.x version, exclude pre-releases
 
-  termuxApp:
-    name: "Latest Termux App Version"
-    spec:
-      repository: "termux-app"
-
   termuxAPI:
     name: "Latest Termux:API Version"
+    kind: githubrelease
     spec:
+      owner: "termux"
       repository: "termux-api"
+      token: "{{ requiredEnv .github.token }}"
+      versionfilter:
+        kind: semver
+        pattern: "~0"  # Match any 0.x.x version, exclude pre-releases
 
   termuxBoot:
     name: "Latest Termux:Boot Version"
+    kind: githubrelease
     spec:
+      owner: "termux"
       repository: "termux-boot"
+      token: "{{ requiredEnv .github.token }}"
+      versionfilter:
+        kind: semver
+        pattern: "~0"  # Match any 0.x.x version, exclude pre-releases
 
 conditions:
   checkTermuxApp:
