@@ -18,7 +18,7 @@ This repository provides a turnkey Ansible-based automation that:
 
 **On your Android phone:**
 - **Termux** installed (required)
-  - Recommended: [GitHub Releases](https://github.com/termux/termux-app/releases) (Latest: [v0.118.3](https://github.com/termux/termux-app/releases/tag/v0.118.3))
+  - Recommended: [GitHub Releases](https://github.com/termux/termux-app/releases) (Latest: [vv0.118.3](https://github.com/termux/termux-app/releases/tag/vv0.118.3))
   - Alternative: [F-Droid](https://f-droid.org/packages/com.termux/)
   - ⚠️ **Do NOT use Google Play Store version** (outdated and incompatible)
 - **Termux companion apps** (optional but recommended):
