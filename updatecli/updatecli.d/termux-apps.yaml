@@ -39,29 +39,32 @@ sources:
       repository: "termux-boot"
 
 conditions:
-  default:
-    kind: githubrelease
-    spec:
-      owner: "termux"
-      token: "{{ requiredEnv .github.token }}"
-
   checkTermuxApp:
     name: "Verify Termux App release exists"
+    kind: githubrelease
     sourceid: termuxApp
     spec:
+      owner: "termux"
       repository: "termux-app"
+      token: "{{ requiredEnv .github.token }}"
 
   checkTermuxAPI:
     name: "Verify Termux:API release exists"
+    kind: githubrelease
     sourceid: termuxAPI
     spec:
+      owner: "termux"
       repository: "termux-api"
+      token: "{{ requiredEnv .github.token }}"
 
   checkTermuxBoot:
     name: "Verify Termux:Boot release exists"
+    kind: githubrelease
     sourceid: termuxBoot
     spec:
+      owner: "termux"
       repository: "termux-boot"
+      token: "{{ requiredEnv .github.token }}"
 
 targets:
   updateTermuxAppInReadme:
