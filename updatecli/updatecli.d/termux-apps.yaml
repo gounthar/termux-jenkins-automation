@@ -21,6 +21,7 @@ sources:
       token: "{{ requiredEnv .github.token }}"
       versionfilter:
         kind: semver
+        pattern: "~0"  # Match any 0.x.x version, exclude pre-releases
 
   termuxApp:
     name: "Latest Termux App Version"
