@@ -141,6 +141,10 @@ jobs:
               exit 1
             fi
 
+            if [ "$total_checks" -eq 0 ]; then
+              echo "⚠️  No required checks found (all checks are optional). Proceeding with merge."
+              break
+            fi
             if [ "$pending_checks" -eq 0 ] && [ "$total_checks" -gt 0 ]; then
               echo "✅ All checks passed!"
               break
