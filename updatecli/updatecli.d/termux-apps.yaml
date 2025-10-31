@@ -82,7 +82,7 @@ targets:
     sourceid: termuxApp
     spec:
       file: README.md
-      matchpattern: '(\[GitHub Releases\]\(https://github.com/termux/termux-app/releases\)) \(Latest: \[v[^\]]+\]\(https://github.com/termux/termux-app/releases/tag/v[^\)]+\)\)'
+      matchpattern: '(\[GitHub Releases\]\(https://github.com/termux/termux-app/releases\)) \(Latest: \[[^\]]+\]\(https://github.com/termux/termux-app/releases/tag/[^\)]+\)\)'
       replacepattern: '$1 (Latest: [{{ source "termuxApp" }}](https://github.com/termux/termux-app/releases/tag/{{ source "termuxApp" }}))'
     scmid: default
 
@@ -92,7 +92,7 @@ targets:
     sourceid: termuxAPI
     spec:
       file: README.md
-      matchpattern: '(\[GitHub\]\(https://github.com/termux/termux-api/releases\)) \(Latest: \[v[^\]]+\]\(https://github.com/termux/termux-api/releases/tag/v[^\)]+\)\)'
+      matchpattern: '(\[GitHub\]\(https://github.com/termux/termux-api/releases\)) \(Latest: \[[^\]]+\]\(https://github.com/termux/termux-api/releases/tag/[^\)]+\)\)'
       replacepattern: '$1 (Latest: [{{ source "termuxAPI" }}](https://github.com/termux/termux-api/releases/tag/{{ source "termuxAPI" }}))'
     scmid: default
 
@@ -102,7 +102,7 @@ targets:
     sourceid: termuxBoot
     spec:
       file: README.md
-      matchpattern: '(\[GitHub\]\(https://github.com/termux/termux-boot/releases\)) \(Latest: \[v[^\]]+\]\(https://github.com/termux/termux-boot/releases/tag/v[^\)]+\)\)'
+      matchpattern: '(\[GitHub\]\(https://github.com/termux/termux-boot/releases\)) \(Latest: \[[^\]]+\]\(https://github.com/termux/termux-boot/releases/tag/[^\)]+\)\)'
       replacepattern: '$1 (Latest: [{{ source "termuxBoot" }}](https://github.com/termux/termux-boot/releases/tag/{{ source "termuxBoot" }}))'
     scmid: default
 
