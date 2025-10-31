@@ -14,63 +14,53 @@ scms:
       branch: "{{ .github.branch }}"
 
 sources:
-  termuxApp:
-    name: "Latest Termux App Version"
+  default:
     kind: githubrelease
     spec:
       owner: "termux"
-      repository: "termux-app"
       token: "{{ requiredEnv .github.token }}"
       versionfilter:
         kind: semver
+
+  termuxApp:
+    name: "Latest Termux App Version"
+    spec:
+      repository: "termux-app"
 
   termuxAPI:
     name: "Latest Termux:API Version"
-    kind: githubrelease
     spec:
-      owner: "termux"
       repository: "termux-api"
-      token: "{{ requiredEnv .github.token }}"
-      versionfilter:
-        kind: semver
 
   termuxBoot:
     name: "Latest Termux:Boot Version"
-    kind: githubrelease
     spec:
-      owner: "termux"
       repository: "termux-boot"
-      token: "{{ requiredEnv .github.token }}"
-      versionfilter:
-        kind: semver
 
 conditions:
-  checkTermuxApp:
-    name: "Verify Termux App release exists"
+  default:
     kind: githubrelease
-    sourceid: termuxApp
     spec:
       owner: "termux"
-      repository: "termux-app"
       token: "{{ requiredEnv .github.token }}"
+
+  checkTermuxApp:
+    name: "Verify Termux App release exists"
+    sourceid: termuxApp
+    spec:
+      repository: "termux-app"
 
   checkTermuxAPI:
     name: "Verify Termux:API release exists"
-    kind: githubrelease
     sourceid: termuxAPI
     spec:
-      owner: "termux"
       repository: "termux-api"
-      token: "{{ requiredEnv .github.token }}"
 
   checkTermuxBoot:
     name: "Verify Termux:Boot release exists"
-    kind: githubrelease
     sourceid: termuxBoot
     spec:
-      owner: "termux"
       repository: "termux-boot"
-      token: "{{ requiredEnv .github.token }}"
 
 targets:
   updateTermuxAppInReadme:
@@ -80,7 +70,7 @@ targets:
     spec:
       file: README.md
       matchpattern: '(\[GitHub Releases\]\(https://github.com/termux/termux-app/releases\)) \(Latest: \[v[^\]]+\]\(https://github.com/termux/termux-app/releases/tag/v[^\)]+\)\)'
-      replacepattern: '$1 (Latest: [{{ source "termuxApp" }}](https://github.com/termux/termux-app/releases/tag/{{ source "termuxApp" }}))'
+      replacepattern: '$1 (Latest: [v{{ source "termuxApp" }}](https://github.com/termux/termux-app/releases/tag/v{{ source "termuxApp" }}))'
     scmid: default
 
   updateTermuxAPIInReadme:
@@ -90,7 +80,7 @@ targets:
     spec:
       file: README.md
       matchpattern: '(\[GitHub\]\(https://github.com/termux/termux-api/releases\)) \(Latest: \[v[^\]]+\]\(https://github.com/termux/termux-api/releases/tag/v[^\)]+\)\)'
-      replacepattern: '$1 (Latest: [{{ source "termuxAPI" }}](https://github.com/termux/termux-api/releases/tag/{{ source "termuxAPI" }}))'
+      replacepattern: '$1 (Latest: [v{{ source "termuxAPI" }}](https://github.com/termux/termux-api/releases/tag/v{{ source "termuxAPI" }}))'
     scmid: default
 
   updateTermuxBootInReadme:
@@ -100,7 +90,7 @@ targets:
     spec:
       file: README.md
       matchpattern: '(\[GitHub\]\(https://github.com/termux/termux-boot/releases\)) \(Latest: \[v[^\]]+\]\(https://github.com/termux/termux-boot/releases/tag/v[^\)]+\)\)'
-      replacepattern: '$1 (Latest: [{{ source "termuxBoot" }}](https://github.com/termux/termux-boot/releases/tag/{{ source "termuxBoot" }}))'
+      replacepattern: '$1 (Latest: [v{{ source "termuxBoot" }}](https://github.com/termux/termux-boot/releases/tag/v{{ source "termuxBoot" }}))'
     scmid: default
 
 actions:
@@ -119,9 +109,9 @@ actions:
         This PR updates the Termux application version references in README.md.
 
         ### What's Changed
-        - **Termux App**: [{{ source "termuxApp" }}](https://github.com/termux/termux-app/releases/tag/{{ source "termuxApp" }})
-        - **Termux:API**: [{{ source "termuxAPI" }}](https://github.com/termux/termux-api/releases/tag/{{ source "termuxAPI" }})
-        - **Termux:Boot**: [{{ source "termuxBoot" }}](https://github.com/termux/termux-boot/releases/tag/{{ source "termuxBoot" }})
+        - **Termux App**: [v{{ source "termuxApp" }}](https://github.com/termux/termux-app/releases/tag/v{{ source "termuxApp" }})
+        - **Termux:API**: [v{{ source "termuxAPI" }}](https://github.com/termux/termux-api/releases/tag/v{{ source "termuxAPI" }})
+        - **Termux:Boot**: [v{{ source "termuxBoot" }}](https://github.com/termux/termux-boot/releases/tag/v{{ source "termuxBoot" }})
 
         ### Why This Matters
         - Users can see the exact versions tested and recommended
