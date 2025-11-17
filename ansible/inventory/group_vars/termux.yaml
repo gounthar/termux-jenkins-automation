@@ -9,7 +9,7 @@ termux_usr: /data/data/com.termux/files/usr
 termux_bin: /data/data/com.termux/files/usr/bin
 
 # Jenkins configuration
-jenkins_version: 2.528.1
+jenkins_version: 2.528.2
 jenkins_port: 8080
 jenkins_home: "{{ termux_home }}/.jenkins"
 jenkins_war: "{{ jenkins_home }}/jenkins.war"
