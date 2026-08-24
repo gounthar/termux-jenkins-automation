@@ -26,7 +26,7 @@ github:1.47.0
 gradle:2.19.1252.v15196b_5a_6e10
 instance-identity:203.v15e81a_1b_7a_38
 ionicons-api:94.vcc3065403257
-jackson2-api:2.22.1-443.vc91f592333c4
+jackson2-api:2.22.2-445.vdc613f1d8012
 jakarta-activation-api:2.1.4-1
 jakarta-mail-api:2.1.5-1
 javax-activation-api:1.2.0-8
@@ -34,11 +34,11 @@ javax-mail-api:1.6.2-11
 jaxb:2.3.9-143.v5979df3304e6
 jjwt-api:0.13.0-141.vd58b_a_9592b_6c
 jquery3-api:3.7.1-687.v68d468e40b_30
-junit:1418.v67a_81935603c
+junit:1424.vc64a_edde7777
 locale:641.v84f22d75fd8b_
 mailer:534.v1b_36f5864073
 matrix-auth:3.3
-matrix-project:905.vcc6831e8760a_
+matrix-project:917.v22eda_817646e
 metrics:4.2.37-494.v06f9a_939d33a_
 mina-sshd-api-common:2.19.0-192.v2b_a_7b_2c1dc71
 mina-sshd-api-core:2.19.0-192.v2b_a_7b_2c1dc71
@@ -73,7 +73,7 @@ variant:70.va_d9f17f859e0
 workflow-aggregator:608.v67378e9d3db_1
 workflow-api:1413.v2ff1a_5e720fa_
 workflow-basic-steps:1098.v808b_fd7f8cf4
-workflow-cps:4362.v9b_991749898e
+workflow-cps:4370.v49a_6937566b_6
 workflow-durable-task-step:1479.v56e587f413a_7
 workflow-job:1590.v49101d088542
 workflow-multibranch:841.vec5b_9e1806ec
